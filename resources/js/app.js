@@ -1,4 +1,5 @@
 import "./bootstrap";
+import "./cryptogtaphy";
 
 // import Alpine from "alpinejs";
 

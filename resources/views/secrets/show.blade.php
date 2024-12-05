@@ -1,5 +1,4 @@
 <x-app-layout>
-    <h1>Secreto</h1>
-    <p>{{ $message }}</p>
+    <livewire:show-secret :secret="$secret" />
 
 </x-app-layout>

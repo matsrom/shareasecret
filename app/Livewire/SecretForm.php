@@ -27,6 +27,7 @@ class SecretForm extends Component
     public $useSymbols;
     public $secret;
 
+    public $urlKey;
     // Settings
     public $daysLeft;
     public $clicksLeft;
@@ -35,7 +36,10 @@ class SecretForm extends Component
     public $keepTrack;
     public $alias;
 
+    // Share    
+    public $shareLink;
 
+    protected $listeners = ['storeSecret' => 'storeSecret'];
 
 
     public function mount()
@@ -122,102 +126,120 @@ class SecretForm extends Component
     }
 
     public function createSecret()
-{
-    // Validación para tipo de secreto de texto
-    if ($this->secret_type === SecretType::Text) {
-        $this->validate([
-            'secret' => 'required',
-            'daysLeft' => 'nullable|numeric|min:1|required_without:clicksLeft',
-            'clicksLeft' => 'nullable|numeric|min:1|required_without:daysLeft',
-            'allowManualDelete' => 'nullable|boolean',
-            'password' => 'nullable|string',
-            'keepTrack' => 'nullable|boolean',
-            'alias' => 'nullable|required_if:keepTrack,true|string',
-        ], [
-            'daysLeft.required_without' => 'You must specify days or clicks to expire.',
-            'clicksLeft.required_without' => 'You must specify days or clicks to expire.',
-            'alias.required_if' => 'Specify a name to identify the secret.',
-        ]);
+    {
+        // Validación para tipo de secreto de texto
+        if ($this->secret_type === SecretType::Text) {
+            $this->validate([
+                'secret' => 'required',
+                'daysLeft' => 'nullable|numeric|min:1|required_without:clicksLeft',
+                'clicksLeft' => 'nullable|numeric|min:1|required_without:daysLeft',
+                'allowManualDelete' => 'nullable|boolean',
+                'password' => 'nullable|string',
+                'keepTrack' => 'nullable|boolean',
+                'alias' => 'nullable|required_if:keepTrack,true|string',
+            ], [
+                'daysLeft.required_without' => 'You must specify days or clicks to expire.',
+                'clicksLeft.required_without' => 'You must specify days or clicks to expire.',
+                'alias.required_if' => 'Specify a name to identify the secret.',
+            ]);
+        }
+        // Validación para tipo de secreto de archivo
+        elseif ($this->secret_type === SecretType::File) {
+            $this->validate([
+                'secret' => 'required|file|max:2048', // Validación de tamaño máximo en KB
+                'daysLeft' => 'nullable|numeric|min:1|required_without:clicksLeft',
+                'clicksLeft' => 'nullable|numeric|min:1|required_without:daysLeft',
+                'allowManualDelete' => 'nullable|boolean',
+                'password' => 'nullable|string',
+                'keepTrack' => 'nullable|boolean',
+                'alias' => 'nullable|required_if:keepTrack,true|string',
+            ], [
+                'secret.required' => 'You must upload a file to share.',
+                'daysLeft.required_without' => 'You must specify days or clicks to expire.',
+                'clicksLeft.required_without' => 'You must specify days or clicks to expire.',
+                'alias.required_if' => 'Specify a name to identify the secret.',
+            ]);
+        }
+
+        // Datos base
+        $data = [
+            'secret_type' => $this->secret_type->value,
+            'days_remaining' => $this->daysLeft,
+            'clicks_remaining' => $this->clicksLeft,
+            'allow_manual_deletion' => $this->allowManualDelete,
+            'is_password_protected' => $this->password ? true : false,
+            'password_hash' => $this->password ? bcrypt($this->password) : null,
+        ];
+
+        if ($this->daysLeft) $data['views_expiration'] = true;
+        if ($this->clicksLeft) $data['clicks_expiration'] = true;
+
+        if (auth()->user()) {
+            $data['keep_track'] = true;
+            $data['user_id'] = auth()->user()->id;
+            $data['alias'] = $this->alias;
+        }
+
+        // Generar las claves de mensaje: completa y corta
+        $messageKey = Str::random(32); // Clave completa
+        $this->urlKey = $messageKey;
+
+        // Procesar el secreto según su tipo (texto o archivo)
+        if ($this->secret_type === SecretType::Text) {
+            // Encriptar el mensaje de texto usando `messageKey`
+            $iv = random_bytes(12);
+            $encryptedMessage = openssl_encrypt($this->secret, 'aes-256-gcm', $messageKey, 0, $iv, $tag);
+
+            $data['message'] = base64_encode($encryptedMessage);
+            $data['message_iv'] = base64_encode($iv);
+            $data['message_tag'] = base64_encode($tag);
+        } elseif ($this->secret_type === SecretType::File) {
+            $originalFilename = $this->secret->getClientOriginalName();
+
+            // Encriptar el archivo
+            $iv = random_bytes(12);
+            $fileContents = file_get_contents($this->secret->getRealPath());
+            $encryptedFileContents = openssl_encrypt($fileContents, 'aes-256-gcm', $messageKey, 0, $iv, $tag);
+
+            $path = 'secrets/' . Str::random(40) . '.enc';
+            Storage::disk('public')->put($path, $encryptedFileContents);
+
+            $data['message'] = $path;
+            $data['message_iv'] = base64_encode($iv);
+            $data['message_tag'] = base64_encode($tag);
+
+            // Encripta el nombre original
+            $data['original_filename'] = Crypt::encryptString($originalFilename);
+        }
+
+
+        $data['url_identifier'] = Str::random(8);
+
+        // If the user is logged in, encrypt the message key with the user's master key
+        if (auth()->user()) {
+            $data['message_key'] = $messageKey;
+
+            $this->dispatch('createSecretWhenLoggedIn', data: $data, masterKey: auth()->user()->master_key);
+        }else{
+            // If the user is not logged in, store the message key as is
+            $data['message_key'] = "";
+            $this->storeSecret($data);
+        }
+
+        //$secret = Secret::create($data);
+
+        // $this->reset(['secret', 'daysLeft', 'clicksLeft', 'password', 'keepTrack', 'alias']);
+        
+        // return redirect()->route('secrets.success', ['secret' => $secret]);
     }
-    // Validación para tipo de secreto de archivo
-    elseif ($this->secret_type === SecretType::File) {
-        $this->validate([
-            'secret' => 'required|file|max:2048', // Validación de tamaño máximo en KB
-            'daysLeft' => 'nullable|numeric|min:1|required_without:clicksLeft',
-            'clicksLeft' => 'nullable|numeric|min:1|required_without:daysLeft',
-            'allowManualDelete' => 'nullable|boolean',
-            'password' => 'nullable|string',
-            'keepTrack' => 'nullable|boolean',
-            'alias' => 'nullable|required_if:keepTrack,true|string',
-        ], [
-            'secret.required' => 'You must upload a file to share.',
-            'daysLeft.required_without' => 'You must specify days or clicks to expire.',
-            'clicksLeft.required_without' => 'You must specify days or clicks to expire.',
-            'alias.required_if' => 'Specify a name to identify the secret.',
-        ]);
+
+    function storeSecret($data) {
+
+
+        $secret = Secret::create($data);
+        session(['urlKey' => $this->urlKey]);
+        return redirect()->route('secrets.success', ['secret' => $secret]);
     }
-
-    // Datos base
-    $data = [
-        'secret_type' => $this->secret_type->value,
-        'days_remaining' => $this->daysLeft,
-        'clicks_remaining' => $this->clicksLeft,
-        'allow_manual_deletion' => $this->allowManualDelete,
-        'is_password_protected' => $this->password ? true : false,
-        'password_hash' => $this->password ? bcrypt($this->password) : null,
-    ];
-
-    if ($this->daysLeft) $data['views_expiration'] = true;
-    if ($this->clicksLeft) $data['clicks_expiration'] = true;
-
-    if (auth()->user() && $this->keepTrack) {
-        $data['keep_track'] = true;
-        $data['user_id'] = auth()->user()->id;
-        $data['alias'] = $this->alias;
-    }
-
-    // Generar las claves de mensaje: completa y corta
-    $fullMessageKey = Str::random(32); // Clave completa
-    $shortMessageKey = substr(hash('sha256', $fullMessageKey), 0, 8); // Clave corta de 8 caracteres
-
-    // Procesar el secreto según su tipo (texto o archivo)
-    if ($this->secret_type === SecretType::Text) {
-        // Encriptar el mensaje de texto usando `fullMessageKey`
-        $iv = random_bytes(12);
-        $encryptedMessage = openssl_encrypt($this->secret, 'aes-256-gcm', $fullMessageKey, 0, $iv, $tag);
-
-        $data['message'] = base64_encode($encryptedMessage);
-        $data['message_iv'] = base64_encode($iv);
-        $data['message_tag'] = base64_encode($tag);
-    } elseif ($this->secret_type === SecretType::File) {
-        $originalFilename = $this->secret->getClientOriginalName();
-
-        // Encriptar el archivo
-        $iv = random_bytes(12);
-        $fileContents = file_get_contents($this->secret->getRealPath());
-        $encryptedFileContents = openssl_encrypt($fileContents, 'aes-256-gcm', $fullMessageKey, 0, $iv, $tag);
-
-        $path = 'secrets/' . Str::random(40) . '.enc';
-        Storage::disk('public')->put($path, $encryptedFileContents);
-
-        $data['message'] = $path;
-        $data['message_iv'] = base64_encode($iv);
-        $data['message_tag'] = base64_encode($tag);
-
-        // Encripta el nombre original
-        $data['original_filename'] = Crypt::encryptString($originalFilename);
-    }
-
-    $data['message_key'] = Crypt::encryptString($fullMessageKey);
-    $data['short_message_key'] = $shortMessageKey;
-    $data['url_identifier'] = Str::random(8);
-
-    $secret = Secret::create($data);
-
-    $this->reset(['secret', 'daysLeft', 'clicksLeft', 'password', 'keepTrack', 'alias']);
-    
-    return redirect()->route('secrets.success', ['secret' => $secret]);
-}
 
 
 

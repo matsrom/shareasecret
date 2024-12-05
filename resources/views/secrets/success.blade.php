@@ -17,17 +17,17 @@
         <div class="mt-8">
             @if ($secret->views_expiration && $secret->clicks_expiration)
                 <p class="">This secret has been set to expire in <strong>{{ $secret->days_remaining }}</strong>
-                    days and
+                    day{{ $secret->days_remaining > 1 ? 's' : '' }} and
                     <strong>{{ $secret->clicks_remaining }}</strong>
-                    clicks.
+                    click{{ $secret->clicks_remaining > 1 ? 's' : '' }}.
                 </p>
             @elseif ($secret->views_expiration)
                 <p class="">This secret has been set to expire in
-                    <strong>{{ $secret->days_remaining }}</strong> days.
+                    <strong>{{ $secret->days_remaining }}</strong> day{{ $secret->days_remaining > 1 ? 's' : '' }}.
                 </p>
             @elseif ($secret->clicks_expiration)
                 <p class="">This secret has been set to expire in <strong>{{ $secret->clicks_remaining }}</strong>
-                    clicks.</p>
+                    click{{ $secret->clicks_remaining > 1 ? 's' : '' }}.</p>
             @endif
 
             @if ($secret->allow_manual_deletion)

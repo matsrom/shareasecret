@@ -15,7 +15,6 @@ class Secret extends Model
         'message', 
         'original_filename',
         'message_key', 
-        'short_message_key',
         'message_iv',	
         'message_tag',
         'url_identifier',

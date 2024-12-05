@@ -227,31 +227,60 @@
             Share Secret
         </x-primary-button>
     </div>
-    <script>
-        function copyToClipboard() {
-            const secretInput = document.getElementById("result");
-            const copyIcon = document.getElementById("copyIcon");
+    @script
+        <script>
+            $wire.on('createSecretWhenLoggedIn', async (event) => {
+                const data = event.data;
+                const encryptedMasterKey = event.masterKey;
 
-            // Seleccionar y copiar el texto al portapapeles
-            secretInput.select();
-            secretInput.setSelectionRange(0, 99999); // Para dispositivos móviles
+                const messageKey = data.message_key;
+                console.log(messageKey);
+                const derivedKey = localStorage.getItem('derivedKey');
+                console.log(derivedKey);
+                const masterKey = await aesDecrypt(encryptedMasterKey, derivedKey);
+                console.log(masterKey);
+                const encryptedMessageKey = await aesEncrypt(messageKey, masterKey);
+                console.log(messageKey);
 
-            navigator.clipboard.writeText(secretInput.value)
-                .then(() => {
-                    // Cambiar el color a verde si la copia es exitosa
-                    copyIcon.style.fill = "#16A34A"; // Verde
-                    setTimeout(() => {
-                        copyIcon.style.fill = "#1D4ED8"; // Volver al color original
-                    }, 2000);
-                })
-                .catch(() => {
-                    // Cambiar el color a rojo si ocurre un error
-                    copyIcon.style.fill = "#DC2626"; // Rojo
-                    setTimeout(() => {
-                        copyIcon.style.fill = "#1D4ED8"; // Volver al color original
-                    }, 2000);
-                });
-        }
-    </script>
+                data.message_key = btoa(encryptedMessageKey);
+
+
+                $wire.dispatch('storeSecret', [data]);
+            });
+
+            // document.addEventListener('createSecret', function(event) {
+            //     const data = event.detail[0];
+            //     Livewire.dispatch('storeSecret', {
+            //         data: data
+            //     });
+            // });
+
+
+            function copyToClipboard() {
+                const secretInput = document.getElementById("result");
+                const copyIcon = document.getElementById("copyIcon");
+
+                // Seleccionar y copiar el texto al portapapeles
+                secretInput.select();
+                secretInput.setSelectionRange(0, 99999); // Para dispositivos móviles
+
+                navigator.clipboard.writeText(secretInput.value)
+                    .then(() => {
+                        // Cambiar el color a verde si la copia es exitosa
+                        copyIcon.style.fill = "#16A34A"; // Verde
+                        setTimeout(() => {
+                            copyIcon.style.fill = "#1D4ED8"; // Volver al color original
+                        }, 2000);
+                    })
+                    .catch(() => {
+                        // Cambiar el color a rojo si ocurre un error
+                        copyIcon.style.fill = "#DC2626"; // Rojo
+                        setTimeout(() => {
+                            copyIcon.style.fill = "#1D4ED8"; // Volver al color original
+                        }, 2000);
+                    });
+            }
+        </script>
+    @endscript
 
 </form>
