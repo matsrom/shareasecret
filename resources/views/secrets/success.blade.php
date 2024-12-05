@@ -2,8 +2,8 @@
     <div class="flex flex-col items-center justify-center mt-56">
         <p class="text-2xl">Go ahead and share this secret!</p>
 
-        <div class="flex flex-row gap-2 justify-center items-center mt-8">
-            <x-text-input id="result" class="block w-96 h-9" type="text" value="{{ $shareLink }}" readonly />
+        <div class="flex flex-row gap-2 justify-center items-center mt-8 w-3/4">
+            <x-text-input id="result" class="block w-1/2 h-9" type="text" value="{{ $shareLink }}" readonly />
             <button type="button" onclick="copyToClipboard()" title="Copiar al portapapeles">
 
                 <svg id="copyIcon" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
@@ -39,7 +39,8 @@
             @endif
 
             @if ($secret->keep_track)
-                <p>This secret has been configured to be tracked by you hand has been given the </p>
+                <p>This secret has been configured to be tracked by you hand has been given the the alias
+                    <strong>{{ $secret->alias }}</strong>.</p>
             @endif
         </div>
     </div>

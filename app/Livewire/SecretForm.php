@@ -175,7 +175,7 @@ class SecretForm extends Component
         if ($this->clicksLeft) $data['clicks_expiration'] = true;
 
         if (auth()->user()) {
-            $data['keep_track'] = true;
+            $data['keep_track'] = $this->keepTrack;
             $data['user_id'] = auth()->user()->id;
             $data['alias'] = $this->alias;
         }

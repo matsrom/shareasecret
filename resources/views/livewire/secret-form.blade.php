@@ -198,8 +198,8 @@
         </div>
         <div>
             <div class="flex flex-row gap-2 mt-2">
-                <input id="expireByClicks" type="checkbox" wire:click="toggleKeepTrack"
-                    class="rounded border-gray-400 focus:ring-0">
+                <input id="keepTrack" type="checkbox" wire:click="toggleKeepTrack"
+                    class="rounded border-gray-400 focus:ring-0" {{ auth()->check() ? '' : 'disabled' }}>
 
                 <div class="flex flex-row relative group">
                     <x-input-label for="keepTrack" :value="__('Keep track of this secret')" />

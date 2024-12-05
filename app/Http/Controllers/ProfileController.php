@@ -60,7 +60,9 @@ class ProfileController extends Controller
     }
 
     public function dashboard(){
-        $secrets = Secret::where('user_id', auth()->user()->id)->get();
+        $secrets = Secret::where('user_id', auth()->user()->id)
+                        ->where('keep_track', 1)
+                        ->get();
         return view('dashboard', ['secrets' => $secrets]);
     }
 }
