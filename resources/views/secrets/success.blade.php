@@ -32,7 +32,7 @@
             @endif
 
             @if ($secret->allow_manual_deletion)
-                <p>This secret has been configured so that it can be deleted by anyone viewing it.</p>
+                <p>This secret has been set so that it can be deleted by anyone viewing it.</p>
             @endif
 
             @if ($secret->is_password_protected)
@@ -40,7 +40,7 @@
             @endif
 
             @if ($secret->keep_track)
-                <p>This secret has been configured to be tracked by you hand has been given the the alias
+                <p>This secret has been set to be tracked by you hand has been given the the alias
                     <strong>{{ $secret->alias }}</strong>.
                 </p>
             @endif
