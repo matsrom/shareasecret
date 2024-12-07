@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="flex flex-col items-center justify-center mt-56">
+    <div class="flex flex-col items-center justify-center  mt-32 md:mt-48">
         <p class="text-2xl">Go ahead and share this secret!</p>
 
         <div class="flex flex-row gap-2 justify-center items-center mt-8 w-3/4">
