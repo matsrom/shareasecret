@@ -2,7 +2,9 @@
 
 namespace App\Livewire;
 
+use App\Models\Secret;
 use Livewire\Component;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Crypt;
 
 class ShowSecret extends Component
@@ -12,18 +14,18 @@ class ShowSecret extends Component
     public $decryptedMessage;
     public $messageKey;
 
+    public $passwordProtected;
+    public $manualDeletion;
+    public $password;
+    public $passwordError = false;
+
+
     protected $listeners = ['decryptText', 'decryptFile'];
 
     public function mount($secret)
     {
         $this->messageKey = request()->query('key');
 
-
-        // if(auth()->user() && $secret->user_id === auth()->user()->id){
-            
-        //     //$this->dispatch('decryptSecretWhenLoggedIn', secret: $this->secret, messageKey: $this->messageKey, masterKey: auth()->user()->master_key);
-        // }
-        // else
         if($secret->secret_type === 'text'){
             $this->decryptText($this->messageKey);
         }
@@ -32,6 +34,13 @@ class ShowSecret extends Component
         }
         else{
             abort(403, 'Unauthorized');
+        }
+
+        $this->passwordProtected = $secret->is_password_protected;
+        $this->manualDeletion = $secret->allow_manual_deletion;
+
+        if(!$this->passwordProtected){
+            $this->updateSecretCounts($secret);
         }
             
     }
@@ -96,6 +105,30 @@ class ShowSecret extends Component
         }, $originalFilename, [
             'Content-Type' => mime_content_type(storage_path('app/public/' . $this->secret->message))
         ]);
+    }
+
+    public function showSecret()
+    {
+        if (Hash::check($this->password, $this->secret->password_hash)) {
+            $this->passwordProtected = false;
+            $this->updateSecretCounts($this->secret);
+            $this->render();
+            
+        }
+        else{
+            $this->passwordError = "Incorrect password";
+        }
+    }
+
+    private function updateSecretCounts(Secret $secret): void
+    {
+        if($secret->clicks_expiration){
+            $secret->clicks_remaining--;
+            $secret->save();
+        }elseif($secret->views_expiration){
+            $secret->views_remaining--;
+            $secret->save();
+        }
     }
 
     public function render()

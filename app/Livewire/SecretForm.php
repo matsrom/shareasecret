@@ -171,7 +171,7 @@ class SecretForm extends Component
             'password_hash' => $this->password ? bcrypt($this->password) : null,
         ];
 
-        if ($this->daysLeft) $data['views_expiration'] = true;
+        if ($this->daysLeft) $data['days_expiration'] = true;
         if ($this->clicksLeft) $data['clicks_expiration'] = true;
 
         if (auth()->user()) {

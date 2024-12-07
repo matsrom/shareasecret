@@ -98,7 +98,12 @@
                 </div>
             @endif
         @else
-            <input type="file" wire:model="secret">
+            <input type="file" wire:model="secret"
+                class="block w-full text-sm
+        file:mr-4 file:py-2 file:px-4 file:rounded-md
+        file:border-0 file:text-sm file:font-semibold
+        file:bg-blue-700 file:text-white
+        hover:file:bg-gray-700 file:cursor-pointer">
             @error('secret')
                 <livewire:show-alert :message="$message" />
             @enderror
@@ -106,7 +111,7 @@
     </div>
 
     {{-- Column 3 --}}
-    <div class="md:w-1/3 flex flex-col px-10 md:px-40 gap-4 mt-10 md:mt-0">
+    <div class="md:w-1/3 flex flex-col px-10 md:px-40 gap-4 my-10 md:my-0">
         <h1>3- Sharing Settings</h1>
         <div>
             <div class="flex flex-col">

@@ -104,8 +104,10 @@
         </div>
     @else
         <div class="flex flex-row items-center gap-8 text-white">
-            <a href="/login">Login</a>
-            <a href="/register">Register</a>
+            <a href="/login"
+                class="border border-white rounded-md px-4 py-2 hover:bg-white hover:text-blue-700">Login</a>
+            <a href="/register"
+                class="border border-white rounded-md px-4 py-2 hover:bg-white hover:text-blue-700">Register</a>
         </div>
         @endif
     </div>

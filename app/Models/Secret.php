@@ -22,7 +22,7 @@ class Secret extends Model
         'password_hash', 
         'clicks_expiration', 
         'clicks_remaining', 
-        'views_expiration', 
+        'days_expiration', 
         'days_remaining', 
         'allow_manual_deletion', 
         'user_id', 
