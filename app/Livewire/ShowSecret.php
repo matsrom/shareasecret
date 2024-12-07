@@ -24,25 +24,29 @@ class ShowSecret extends Component
 
     public function mount($secret)
     {
+        $currentDate = now();
+        $expirationDate = $secret->created_at->addDays($secret->days_remaining);
+
+        if (($secret->clicks_expiration && $secret->clicks_remaining <= 0) || ($secret->days_expiration && $currentDate->greaterThan($expirationDate))) {
+            abort(404);
+        }
+
         $this->messageKey = request()->query('key');
 
-        if($secret->secret_type === 'text'){
+        if ($secret->secret_type === 'text') {
             $this->decryptText($this->messageKey);
-        }
-        else if($secret->secret_type === 'file'){
+        } else if ($secret->secret_type === 'file') {
             $this->messageKey = request()->query('key');
-        }
-        else{
+        } else {
             abort(403, 'Unauthorized');
         }
 
         $this->passwordProtected = $secret->is_password_protected;
         $this->manualDeletion = $secret->allow_manual_deletion;
 
-        if(!$this->passwordProtected){
-            $this->updateSecretCounts($secret);
+        if (!$this->passwordProtected) {
+            $this->updateSecretClicks($secret);
         }
-            
     }
 
 
@@ -111,7 +115,9 @@ class ShowSecret extends Component
     {
         if (Hash::check($this->password, $this->secret->password_hash)) {
             $this->passwordProtected = false;
-            $this->updateSecretCounts($this->secret);
+            if($this->secret->clicks_expiration){
+                $this->updateSecretClicks($this->secret);
+            }
             $this->render();
             
         }
@@ -120,15 +126,21 @@ class ShowSecret extends Component
         }
     }
 
-    private function updateSecretCounts(Secret $secret): void
+    private function updateSecretClicks(Secret $secret): void
     {
         if($secret->clicks_expiration){
             $secret->clicks_remaining--;
             $secret->save();
-        }elseif($secret->views_expiration){
-            $secret->views_remaining--;
-            $secret->save();
         }
+    }
+
+    public function deleteSecret()
+    {
+        $this->secret->clicks_remaining = 0;
+        $this->secret->days_remaining = 0;
+        $this->secret->save();
+
+        $this->redirect(route('secrets.create'));
     }
 
     public function render()

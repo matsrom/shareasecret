@@ -22,8 +22,6 @@ class SecretController extends Controller
 
     public function show(Request $request, $url_identifier)
     {
-
-
         // Buscar el secreto en la base de datos usando el url_identifier
         $secret = Secret::where('url_identifier', $url_identifier)->firstOrFail();
         if(($secret->clicks_expiration && $secret->clicks_remaining <= 0) || ($secret->views_expiration && $secret->views_remaining <= 0)){
@@ -32,16 +30,4 @@ class SecretController extends Controller
 
         return view('secrets.show', ['secret' => $secret]);
     }
-
-    /**
-     * Actualiza el contador de clicks y vistas restantes del secreto
-     */
-
-
-    public function delete(Secret $secret){
-        $secret->delete();
-        return redirect()->route('home');
-    }
-
-
 }

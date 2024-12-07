@@ -6,7 +6,7 @@
 
     {{-- Column 1 --}}
     <div class="md:w-1/3 flex flex-col px-10 md:px-40 gap-4">
-        <h1>1- Select Type</h1>
+        <h2 class="text-xl font-medium text-gray-900">1- Select Type</h2>
         <div><x-primary-button wire:click.prevent="selectType('text')"
                 @class([
                     'bg-gray-700' => $secret_type === SecretType::Text,
@@ -22,7 +22,7 @@
 
     {{-- Column 2 --}}
     <div class="md:w-1/3 flex flex-col px-10 md:px-40 gap-4 mt-10 md:mt-0">
-        <h1>2- Enter Secret</h1>
+        <h2 class="text-xl font-medium text-gray-900">2- Enter secret</h2>
         @if ($this->secret_type == SecretType::Text)
             {{-- Toggle --}}
             <label class="flex gap-4 items-center cursor-pointer">
@@ -42,7 +42,7 @@
                     <x-input-label for="description" :value="__('Write the text to share')" />
                     <textarea id="description" class="border-gray-300 focus:border-blue-700  rounded-md shadow-sm w-full h-48"
                         wire:model="secret"></textarea>
-                    @error('description')
+                    @error('secret')
                         <livewire:show-alert :message="$message" />
                     @enderror
                 </div>
@@ -112,9 +112,10 @@
 
     {{-- Column 3 --}}
     <div class="md:w-1/3 flex flex-col px-10 md:px-40 gap-4 my-10 md:my-0">
-        <h1>3- Sharing Settings</h1>
+        <h2 class="text-xl font-medium text-gray-900">3- Sharing Settings</h2>
         <div>
             <div class="flex flex-col">
+                {{-- Days until expiration --}}
                 <div class="flex flex-row items-center relative group">
                     <x-input-label for="daysLeft" :value="__('Days until expiration')" />
 
@@ -131,7 +132,7 @@
                     </div>
                 </div>
 
-                <x-text-input id="daysLeft" class="block w-24 h-9 mt-1" type="text" wire:model="daysLeft"
+                <x-text-input id="daysLeft" class="block w-24 h-9 mt-1" type="number" wire:model="daysLeft"
                     :value="old('daysLeft')" />
                 @error('daysLeft')
                     <livewire:show-alert :message="$message" />
@@ -141,6 +142,7 @@
         <div>
 
             <div class="flex flex-col">
+                {{-- Clicks until expiration --}}
                 <div class="flex flex-row items-center relative group">
                     <x-input-label for="daysLeft" :value="__('Clicks until expiration')" />
 
@@ -158,13 +160,14 @@
                 </div>
 
 
-                <x-text-input id="clicksLeft" class="block w-24 h-9 mt-1" type="text" wire:model="clicksLeft"
+                <x-text-input id="clicksLeft" class="block w-24 h-9 mt-1" type="number" wire:model="clicksLeft"
                     :value="old('clicksLeft')" />
                 @error('clicksLeft')
                     <livewire:show-alert :message="$message" />
                 @enderror
             </div>
         </div>
+        {{-- Allow manual delete --}}
         <div class="flex flex-row gap-2 mt-2">
             <input id="allowManualDelete" type="checkbox" wire:model="allowManualDelete"
                 class="rounded border-gray-400 focus:ring-0">
@@ -182,6 +185,7 @@
                 </div>
             </div>
         </div>
+        {{-- Protect with password --}}
         <div class="mt-2">
             <div class="flex flex-row relative group">
                 <x-input-label for="password" :value="__('Protect with password')" />
@@ -195,12 +199,13 @@
                     Before the secret is displayed, a password will be requested
                 </div>
             </div>
-            <x-text-input id="password" class="block mt-1 w-60  h-9" type="text" wire:model="password"
+            <x-text-input id="password" class="block mt-1 w-full md:w-60  h-9" type="text" wire:model="password"
                 :value="old('password')" />
             @error('password')
                 <livewire:show-alert :message="$message" />
             @enderror
         </div>
+        {{-- Keep track of this secret --}}
         <div>
             <div class="flex flex-row gap-2 mt-2">
                 <input id="keepTrack" type="checkbox" wire:click="toggleKeepTrack"
@@ -219,8 +224,9 @@
                     </div>
                 </div>
             </div>
+            {{-- Alias --}}
             <div class="flex flex-row">
-                <x-text-input id="alias" class="block w-60 h-9 mt-2" type="text" wire:model="alias"
+                <x-text-input id="alias" class="block w-full md:w-60 h-9 mt-2" type="text" wire:model="alias"
                     :value="old('alias')" disabled="{{ !$keepTrack }}" />
 
             </div>
@@ -228,7 +234,7 @@
                 <livewire:show-alert :message="$message" />
             @enderror
         </div>
-        <x-primary-button class="justify-center mt-2 w-60">
+        <x-primary-button class="justify-center mt-2 w-full	md:w-60">
             Share Secret
         </x-primary-button>
     </div>

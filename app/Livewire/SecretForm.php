@@ -127,11 +127,16 @@ class SecretForm extends Component
 
     public function createSecret()
     {
+        
+        $this->clicksLeft = $this->clicksLeft === "" ? null : $this->clicksLeft;
+        $this->daysLeft = $this->daysLeft === "" ? null : $this->daysLeft;
+
+
         // Validación para tipo de secreto de texto
         if ($this->secret_type === SecretType::Text) {
             $this->validate([
                 'secret' => 'required',
-                'daysLeft' => 'nullable|numeric|min:1|required_without:clicksLeft',
+                'daysLeft' => 'nullable|numeric|min:1|max:365|required_without:clicksLeft',
                 'clicksLeft' => 'nullable|numeric|min:1|required_without:daysLeft',
                 'allowManualDelete' => 'nullable|boolean',
                 'password' => 'nullable|string',
@@ -140,7 +145,7 @@ class SecretForm extends Component
             ], [
                 'daysLeft.required_without' => 'You must specify days or clicks to expire.',
                 'clicksLeft.required_without' => 'You must specify days or clicks to expire.',
-                'alias.required_if' => 'Specify a name to identify the secret.',
+                'alias.required_if' => 'Specify an alias to identify the secret.',
             ]);
         }
         // Validación para tipo de secreto de archivo
@@ -164,15 +169,16 @@ class SecretForm extends Component
         // Datos base
         $data = [
             'secret_type' => $this->secret_type->value,
-            'days_remaining' => $this->daysLeft,
-            'clicks_remaining' => $this->clicksLeft,
+            'days_remaining' => $this->daysLeft ?: 0,
+            'clicks_remaining' => $this->clicksLeft ?: 0,
             'allow_manual_deletion' => $this->allowManualDelete,
             'is_password_protected' => $this->password ? true : false,
             'password_hash' => $this->password ? bcrypt($this->password) : null,
         ];
 
-        if ($this->daysLeft) $data['days_expiration'] = true;
-        if ($this->clicksLeft) $data['clicks_expiration'] = true;
+        $data['days_expiration'] = !is_null($this->daysLeft) && $this->daysLeft > 0;
+        $data['clicks_expiration'] = !is_null($this->clicksLeft) && $this->clicksLeft > 0;
+
 
         if (auth()->user()) {
             $data['keep_track'] = $this->keepTrack;
@@ -213,7 +219,7 @@ class SecretForm extends Component
         }
 
 
-        $data['url_identifier'] = Str::random(8);
+        $data['url_identifier'] = Str::random(16);
 
         // If the user is logged in, encrypt the message key with the user's master key
         if (auth()->user()) {

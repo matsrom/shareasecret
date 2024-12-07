@@ -2,7 +2,7 @@
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
-    <form method="POST" action="{{ route('login') }}">
+    <form method="POST" action="{{ route('login') }}" onsubmit="return handleSubmit(event)" id="loginForm">
         @csrf
 
         <!-- Email Address -->
@@ -49,4 +49,26 @@
 
         </div>
     </form>
+    <script>
+        async function handleSubmit(event) {
+
+
+            event.preventDefault();
+
+            try {
+                const password = document.getElementById("password").value;
+                const derivedKey = await deriveKey(password);
+                localStorage.setItem('derivedKey', derivedKey);
+
+                // Una vez que la función asíncrona se complete, envía el formulario
+                document.getElementById('loginForm').submit();
+            } catch (error) {
+                console.error('Error:', error);
+                // Maneja el error según tus necesidades
+                return false;
+            }
+
+            return false; // Previene el envío normal del formulario
+        }
+    </script>
 </x-guest-layout>

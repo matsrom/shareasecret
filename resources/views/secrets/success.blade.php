@@ -15,7 +15,7 @@
             </button>
 
         </div>
-        <div class="mt-8">
+        <div class="mt-8 px-4 md:px-0">
             @if ($secret->views_expiration && $secret->clicks_expiration)
                 <p class="">This secret has been set to expire in <strong>{{ $secret->days_remaining }}</strong>
                     day{{ $secret->days_remaining > 1 ? 's' : '' }} and
