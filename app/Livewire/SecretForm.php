@@ -45,14 +45,20 @@ class SecretForm extends Component
     public function mount()
     {
         //
+        $this->secret = null;
+        $this->daysLeft = null;
+        $this->clicksLeft = null;
+        $this->allowManualDelete = false;
+        $this->password = null;
+        $this->keepTrack = false;
+        $this->alias = null;
+        
+        
         $this->secret_type = SecretType::Text;
         $this->text_type = 'manual';
         $this->useCapitals = false;
         $this->useNumbers = false;
         $this->useSymbols = false;
-
-        $this->allowManualDelete = false;
-        $this->keepTrack = false;
     }
 
     public function selectType(string $type)

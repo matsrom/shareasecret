@@ -16,13 +16,13 @@
 
         </div>
         <div class="mt-8 px-4 md:px-0">
-            @if ($secret->views_expiration && $secret->clicks_expiration)
+            @if ($secret->days_remaining && $secret->clicks_remaining)
                 <p class="">This secret has been set to expire in <strong>{{ $secret->days_remaining }}</strong>
                     day{{ $secret->days_remaining > 1 ? 's' : '' }} and
                     <strong>{{ $secret->clicks_remaining }}</strong>
                     click{{ $secret->clicks_remaining > 1 ? 's' : '' }}.
                 </p>
-            @elseif ($secret->views_expiration)
+            @elseif ($secret->days_remaining)
                 <p class="">This secret has been set to expire in
                     <strong>{{ $secret->days_remaining }}</strong> day{{ $secret->days_remaining > 1 ? 's' : '' }}.
                 </p>
