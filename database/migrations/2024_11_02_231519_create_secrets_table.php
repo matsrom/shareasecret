@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('secrets', function (Blueprint $table) {
-            $table->id(); // Primary Key
+            $table->uuid('id')->primary();
             
             // Secret Type
             $table->enum('secret_type', ['text', 'file']); 

@@ -20,6 +20,7 @@ class SecretForm extends Component
     public SecretType $secret_type;
 
     // Secret
+    public $secret_id;
     public $text_type;
     public $length;
     public $useCapitals;
@@ -44,7 +45,7 @@ class SecretForm extends Component
 
     public function mount()
     {
-        //
+        $this->secret_id = Str::uuid()->toString();
         $this->secret = null;
         $this->daysLeft = null;
         $this->clicksLeft = null;
@@ -174,6 +175,7 @@ class SecretForm extends Component
 
         // Datos base
         $data = [
+            'id' => $this->secret_id,
             'secret_type' => $this->secret_type->value,
             'days_remaining' => $this->daysLeft ?: 0,
             'clicks_remaining' => $this->clicksLeft ?: 0,
@@ -246,8 +248,7 @@ class SecretForm extends Component
     }
 
     function storeSecret($data) {
-
-
+        // dd($data);
         $secret = Secret::create($data);
         session(['urlKey' => $this->urlKey]);
         return redirect()->route('secrets.success', ['secret' => $secret]);

@@ -11,8 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('secrets', function (Blueprint $table) {
-            $table->renameColumn('views_expiration', 'days_expiration');
+        Schema::create('asd', function (Blueprint $table) {
+            $table->id();
+            $table->timestamps();
         });
     }
 
@@ -21,8 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('secrets', function (Blueprint $table) {
-            $table->renameColumn('days_expiration', 'views_expiration');
-        });
+        Schema::dropIfExists('asd');
     }
 };

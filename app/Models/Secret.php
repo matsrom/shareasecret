@@ -10,7 +10,11 @@ class Secret extends Model
     /** @use HasFactory<\Database\Factories\SecretFactory> */
     use HasFactory;
 
+    protected $keyType = 'string';
+    public $incrementing = false;
+
     protected $fillable = [
+        'id',
         'secret_type', 
         'message', 
         'original_filename',
