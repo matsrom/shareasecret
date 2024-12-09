@@ -4,6 +4,8 @@ namespace App\Livewire;
 
 use App\Models\Secret;
 use Livewire\Component;
+use App\Models\SecretLog;
+use Jenssegers\Agent\Facades\Agent;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Crypt;
 
@@ -29,6 +31,7 @@ class ShowSecret extends Component
 
         if (($secret->clicks_expiration && $secret->clicks_remaining <= 0) || ($secret->days_expiration && $currentDate->greaterThan($expirationDate))) {
             abort(404);
+            $this->createSecretLog(false);
         }
 
         $this->messageKey = request()->query('key');
@@ -46,6 +49,7 @@ class ShowSecret extends Component
 
         if (!$this->passwordProtected) {
             $this->updateSecretClicks($secret);
+            $this->createSecretLog(true);
         }
     }
 
@@ -118,11 +122,13 @@ class ShowSecret extends Component
             if($this->secret->clicks_expiration){
                 $this->updateSecretClicks($this->secret);
             }
-            $this->render();
             
+            $this->render();
+            $this->createSecretLog(true);
         }
         else{
             $this->passwordError = "Incorrect password";
+            $this->createSecretLog(false);
         }
     }
 
@@ -132,6 +138,7 @@ class ShowSecret extends Component
             $secret->clicks_remaining--;
             $secret->save();
         }
+       
     }
 
     public function deleteSecret()
@@ -141,6 +148,20 @@ class ShowSecret extends Component
         $this->secret->save();
 
         $this->redirect(route('secrets.create'));
+    }
+
+    public function createSecretLog($isSuccessful){
+        $secretLog = new SecretLog();
+        $secretLog->secret_id = $this->secret->id;
+        $secretLog->ip_address = request()->ip();
+        $secretLog->browser = Agent::browser() . ' ' . Agent::version(Agent::browser());
+        $secretLog->os = Agent::platform() . ' ' . Agent::version(Agent::platform());
+        $secretLog->device = Agent::device();
+        $secretLog->country = request()->header('CF-IPCountry') ?? 'Unknown';
+        $secretLog->city = request()->header('CF-IPCity') ?? 'Unknown';
+        $secretLog->access_date = now();
+        $secretLog->is_successful = $isSuccessful;
+        $secretLog->save();
     }
 
     public function render()

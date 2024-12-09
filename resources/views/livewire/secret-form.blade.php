@@ -85,25 +85,23 @@
                     <div class="flex items-center">
                         <x-text-input id="result" class="block mt-1 w-60  h-9" type="text"
                             wire:model.defer="secret" readonly />
-                        <button type="button" class="pl-2" onclick="copyToClipboard()"
-                            title="Copiar al portapapeles">
+                        <button class="pl-2 text-blue-700 hover:text-gray-700 flex" type="button"
+                            onclick="copyToClipboard()" title="Copiar al portapapeles">
 
-                            <svg id="copyIcon" xmlns="http://www.w3.org/2000/svg" height="24px"
-                                viewBox="0 -960 960 960" width="24px" fill="#1D4ED8">
-                                <path
-                                    d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h168q13-36 43.5-58t68.5-22q38 0 68.5 22t43.5 58h168q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm0-80h560v-560H200v560Zm80-80h280v-80H280v80Zm0-160h400v-80H280v80Zm0-160h400v-80H280v80Zm200-190q13 0 21.5-8.5T510-820q0-13-8.5-21.5T480-850q-13 0-21.5 8.5T450-820q0 13 8.5 21.5T480-790ZM200-200v-560 560Z" />
-                            </svg>
+                            <span class="material-symbols-outlined" id="copyIcon">
+                                content_copy
+                            </span>
                         </button>
                     </div>
                 </div>
             @endif
         @else
             <input type="file" wire:model="secret"
-                class="block w-full text-sm
-        file:mr-4 file:py-2 file:px-4 file:rounded-md
-        file:border-0 file:text-sm file:font-semibold
-        file:bg-blue-700 file:text-white
-        hover:file:bg-gray-700 file:cursor-pointer">
+                class="file:!ml-0 block w-full text-sm
+file:!mr-4 file:!py-2 file:!px-4 file:!rounded-md
+file:!border-0 file:!text-sm file:!font-semibold
+file:!bg-blue-700 !file:!text-white
+hover:file:bg-gray-700 file:cursor-pointer">
             @error('secret')
                 <livewire:show-alert :message="$message" />
             @enderror
@@ -265,9 +263,7 @@
             //         data: data
             //     });
             // });
-
-
-            function copyToClipboard() {
+            window.copyToClipboard = function() {
                 const secretInput = document.getElementById("result");
                 const copyIcon = document.getElementById("copyIcon");
 
@@ -275,21 +271,21 @@
                 secretInput.select();
                 secretInput.setSelectionRange(0, 99999); // Para dispositivos móviles
 
-                navigator.clipboard.writeText(secretInput.value)
-                    .then(() => {
-                        // Cambiar el color a verde si la copia es exitosa
-                        copyIcon.style.fill = "#16A34A"; // Verde
-                        setTimeout(() => {
-                            copyIcon.style.fill = "#1D4ED8"; // Volver al color original
-                        }, 2000);
-                    })
-                    .catch(() => {
-                        // Cambiar el color a rojo si ocurre un error
-                        copyIcon.style.fill = "#DC2626"; // Rojo
-                        setTimeout(() => {
-                            copyIcon.style.fill = "#1D4ED8"; // Volver al color original
-                        }, 2000);
-                    });
+                navigator.clipboard.writeText(secretInput.value);
+                copyIcon.classList.add('text-green-600');
+
+
+                // Eliminar clase después de 1 segundo
+                setTimeout(() => {
+                    copyIcon.classList.remove('text-green-600');
+                }, 1000);
+
+
+
+                Livewire.dispatch('show-toast', [{
+                    message: "Text copied to clipboard", // Mensaje que se mostrará en el toast
+                    class: "toast-success" // Clase CSS asociada al toast
+                }]);
             }
         </script>
     @endscript

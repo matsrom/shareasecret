@@ -71,6 +71,11 @@
                         copyIcon.style.fill = "#1D4ED8"; // Volver al color original
                     }, 2000);
                 });
+
+            Livewire.dispatch('show-toast', [{
+                message: "URL copied to clipboard", // Mensaje que se mostrará en el toast
+                class: "toast-success" // Clase CSS asociada al toast
+            }]);
         }
     </script>
 
