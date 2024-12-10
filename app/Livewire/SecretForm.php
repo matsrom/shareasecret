@@ -126,7 +126,7 @@ class SecretForm extends Component
 
     public function toggleKeepTrack()
     {
-        $this->keepTrack = $this->keepTrack ? '' : '1';
+        $this->keepTrack = $this->keepTrack ? '0' : '1';
         if(!$this->keepTrack) {
             $this->alias = '';
         }
@@ -134,7 +134,7 @@ class SecretForm extends Component
 
     public function createSecret()
     {
-        
+
         $this->clicksLeft = $this->clicksLeft === "" ? null : $this->clicksLeft;
         $this->daysLeft = $this->daysLeft === "" ? null : $this->daysLeft;
 

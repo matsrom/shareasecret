@@ -27,7 +27,7 @@
         @endif
         @if ($this->manualDeletion)
             <div class="flex flex-col items-center justify-center mt-8">
-                <x-primary-button wire:click="deleteSecret" class="bg-red-500 hover:bg-red-700">Delete
+                <x-primary-button wire:click="deleteSecret" class="bg-red-600 hover:bg-red-800">Delete
                     secret</x-primary-button>
                 <p class="text-sm text-gray-500 mt-2">This secret won't be available anymore</p>
             </div>

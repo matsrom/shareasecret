@@ -26,12 +26,17 @@ class ShowSecret extends Component
 
     public function mount($secret)
     {
+
+
         $currentDate = now();
         $expirationDate = $secret->created_at->addDays($secret->days_remaining);
 
         if (($secret->clicks_expiration && $secret->clicks_remaining <= 0) || ($secret->days_expiration && $currentDate->greaterThan($expirationDate))) {
-            abort(404);
             $this->createSecretLog(false);
+            return redirect(route('secrets.create'))->with('status', [
+                'message' => 'The secret has expired',
+                'class' => 'toast-danger',
+            ]);
         }
 
         $this->messageKey = request()->query('key');

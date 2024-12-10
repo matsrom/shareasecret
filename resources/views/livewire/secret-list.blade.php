@@ -42,8 +42,7 @@
                         <td class="px-6 py-2 border-b text-center flex items-center justify-center">
                             <x-icon-link type="blue-700" icon="manage_search"
                                 href="{{ route('secret.details', $secret->id) }}" />
-                            <livewire:delete-secret :secretId="$secret->id" :key="'delete-secret' . $secret->id" />
-
+                            <livewire:delete-secret :secretId="$secret->id" :wire:key="'delete-secret-' . uniqid()" />
                         </td>
                     </tr>
                 @endforeach

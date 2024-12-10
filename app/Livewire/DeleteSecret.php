@@ -19,8 +19,9 @@ class DeleteSecret extends Component
     public function deleteSecret()
     {
         $this->secret->delete();
-        $this->dispatch('show-toast', ['message' => 'Secret deleted successfully', 'class' => 'toast-success']);
         $this->dispatch('secretDeleted');
+        $this->dispatch('show-toast', ['message' => 'Secret deleted successfully', 'class' => 'toast-success']);
+        
     }
 
     public function render()
