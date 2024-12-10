@@ -53,8 +53,9 @@
 
         </div>
 
+        <h2 class="text-2xl font-bold mb-4 mt-10">Secret log</h2>
         {{-- Secret logs --}}
-        <div class="overflow-x-auto mt-10">
+        <div class="overflow-x-auto">
             <table class="min-w-full">
                 <thead>
                     <tr>
@@ -69,7 +70,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($secretLogs as $secretLog)
+                    @forelse ($secretLogs as $secretLog)
                         <tr class="text-gray-700">
                             <td class="px-6 py-2 border-b text-center">{{ $secretLog->ip_address }}</td>
                             <td class="px-6 py-2 border-b text-center">{{ $secretLog->browser }}</td>
@@ -82,7 +83,12 @@
                             <td class="px-6 py-2 border-b text-center">
                                 {{ $secretLog->is_successful ? 'Success' : 'Failed' }}</td>
                         </tr>
-                    @endforeach
+                    @empty
+                        <tr class="text-gray-400 text-sm">
+                            <td colspan="7" class="px-6 py-4   text-center">No logs found
+                            </td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
