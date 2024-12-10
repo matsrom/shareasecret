@@ -105,6 +105,11 @@
             const url = window.location.origin + '/secret/' + urlIdentifier + '?key=' + messageKey;
 
             urlField.value = url;
+
+            // const asd = await fetch('http://ip-api.com/json/81.47.137.137');
+            // const data = await asd.json();
+            // console.log(data);
+
         });
 
         function copyUrlToClipboard() {

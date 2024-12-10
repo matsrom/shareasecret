@@ -16,7 +16,7 @@
 .toast-warning {
     background: white; /* Verde para éxito */
     color: #374151 !important;
-    border-left: 5px solid #16a34a !important;
+    border-left: 5px solid #d97706 !important;
     border-radius: 5px;
     padding: 20px 15px;
 
@@ -26,8 +26,8 @@
 
 .toast-danger {
     background: white; /* Verde para éxito */
-    color: var(--color-neutral4) !important;
-    border-left: 5px solid var(--color-danger) !important;
+    color: #374151 !important;
+    border-left: 5px solid #b91c1c !important;
     border-radius: 5px;
     padding: 20px 15px;
     box-shadow: none !important;

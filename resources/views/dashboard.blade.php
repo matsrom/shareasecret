@@ -1,5 +1,5 @@
 <x-app-layout>
-    <livewire:secret-list :secrets="$secrets" />
+    <livewire:secret-list />
 
 
 

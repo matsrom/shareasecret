@@ -71,7 +71,22 @@
         </main>
     </div>
     @livewireScripts
-    <script></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            @if (session('status'))
+                let statusData = @json(session('status')); // Convertir el array de sesión a JSON
+                console.log(statusData.message); // Depuración en consola
+                console.log(statusData.class);
+                let asd = statusData.message;
+                console.log(asd);
+
+                Livewire.dispatch('show-toast', [{
+                    message: statusData.message, // Mensaje que se mostrará en el toast
+                    class: statusData.class // Clase CSS asociada al toast
+                }]);
+            @endif
+        });
+    </script>
 </body>
 
 </html>
