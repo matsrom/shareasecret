@@ -38,4 +38,9 @@ class Secret extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function secretLogs()
+    {
+        return $this->hasMany(SecretLog::class);
+    }
 }

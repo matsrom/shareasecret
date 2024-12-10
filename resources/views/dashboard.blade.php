@@ -1,4 +1,6 @@
 <x-app-layout>
-    Coming soon
+    <livewire:secret-list :secrets="$secrets" />
+
+
 
 </x-app-layout>
