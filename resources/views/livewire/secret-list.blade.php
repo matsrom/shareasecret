@@ -15,7 +15,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach ($secrets as $secret)
+                @forelse ($secrets as $secret)
                     <tr class="">
                         <td class="px-6 py-2 border-b capitalize text-center">{{ $secret->secret_type }}</td>
                         <td class="px-6 py-2 border-b text-center">
@@ -45,7 +45,14 @@
                             <livewire:delete-secret :secretId="$secret->id" :wire:key="'delete-secret-' . uniqid()" />
                         </td>
                     </tr>
-                @endforeach
+                @empty
+                    <tr class="text-gray-400 text-sm">
+                        <td colspan="7" class="px-6 py-4   text-center">No secrets found
+                        </td>
+                    </tr>
+                @endforelse
+
+
             </tbody>
         </table>
     </div>
