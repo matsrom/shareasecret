@@ -33,4 +33,25 @@
             </div>
         @endif
     @endif
+    @script
+        <script>
+            Livewire.on('getLogLocation', async function(success) {
+                const response = await fetch('/proxy/ip-location?ip=81.47.137.137');
+                const data = await response.json();
+
+                const country = data.country_name;
+                const city = data.city_name;
+
+                console.log(country);
+                console.log(city);
+                console.log(success[0]);
+
+                Livewire.dispatch('createSecretLog', {
+                    success: success[0],
+                    country: country,
+                    city: city
+                });
+            });
+        </script>
+    @endscript
 </div>

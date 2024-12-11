@@ -35,6 +35,7 @@ class SecretController extends Controller
 
     public function details(Secret $secret)
     {
+        
         $secretLogs = $secret->secretLogs;
         return view('secrets.details', ['secret' => $secret, 'secretLogs' => $secretLogs]);
     }

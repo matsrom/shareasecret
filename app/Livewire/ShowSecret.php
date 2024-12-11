@@ -7,6 +7,7 @@ use Livewire\Component;
 use App\Models\SecretLog;
 use Jenssegers\Agent\Facades\Agent;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Crypt;
 
 class ShowSecret extends Component
@@ -22,7 +23,7 @@ class ShowSecret extends Component
     public $passwordError = false;
 
 
-    protected $listeners = ['decryptText', 'decryptFile'];
+    protected $listeners = ['decryptText', 'decryptFile', 'createSecretLog'];
 
     public function mount($secret)
     {
@@ -32,7 +33,8 @@ class ShowSecret extends Component
         $expirationDate = $secret->created_at->addDays($secret->days_remaining);
 
         if (($secret->clicks_expiration && $secret->clicks_remaining <= 0) || ($secret->days_expiration && $currentDate->greaterThan($expirationDate))) {
-            $this->createSecretLog(false);
+            $this->dispatch('getLogLocation', false);
+            //$this->createSecretLog(false);
             return redirect(route('secrets.create'))->with('status', [
                 'message' => 'The secret has expired',
                 'class' => 'toast-danger',
@@ -54,7 +56,8 @@ class ShowSecret extends Component
 
         if (!$this->passwordProtected) {
             $this->updateSecretClicks($secret);
-            $this->createSecretLog(true);
+            $this->dispatch('getLogLocation', true);
+            //$this->createSecretLog(true);
         }
     }
 
@@ -129,11 +132,13 @@ class ShowSecret extends Component
             }
             
             $this->render();
-            $this->createSecretLog(true);
+            $this->dispatch('getLogLocation', true);
+            //$this->createSecretLog(true);
         }
         else{
             $this->passwordError = "Incorrect password";
-            $this->createSecretLog(false);
+            $this->dispatch('getLogLocation', false);
+            //$this->createSecretLog(false);
         }
     }
 
@@ -155,17 +160,17 @@ class ShowSecret extends Component
         $this->redirect(route('secrets.create'));
     }
 
-    public function createSecretLog($isSuccessful){
+    public function createSecretLog($success, $country, $city){;
         $secretLog = new SecretLog();
         $secretLog->secret_id = $this->secret->id;
         $secretLog->ip_address = request()->ip();
         $secretLog->browser = Agent::browser() . ' ' . Agent::version(Agent::browser());
         $secretLog->os = Agent::platform() . ' ' . Agent::version(Agent::platform());
         $secretLog->device = Agent::device();
-        $secretLog->country = request()->header('CF-IPCountry') ?? 'Unknown';
-        $secretLog->city = request()->header('CF-IPCity') ?? 'Unknown';
+        $secretLog->country = $country;
+        $secretLog->city = $city;
         $secretLog->access_date = now();
-        $secretLog->is_successful = $isSuccessful;
+        $secretLog->is_successful = $success;
         $secretLog->save();
     }
 

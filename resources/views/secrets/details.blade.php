@@ -3,7 +3,7 @@
         <h2 class="text-2xl font-bold mb-6 mt-10">Secret details</h2>
 
 
-        <div class="flex flex-row gap-10">
+        <div class="flex flex-col md:flex-row gap-4 md:gap-10">
             <div class="max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow">
                 <a href="#">
                     <h5 class="mb-2 text-xl font-bold tracking-tight text-gray-900">Secret details</h5>
@@ -112,9 +112,9 @@
 
             urlField.value = url;
 
-            // const asd = await fetch('http://ip-api.com/json/81.47.137.137');
-            // const data = await asd.json();
-            // console.log(data);
+            // Llamada a la API
+            const response = await fetch('/proxy/ip-location?ip=81.47.137.137');
+            const data = await response.json();
 
         });
 

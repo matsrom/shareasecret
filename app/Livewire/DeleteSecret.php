@@ -10,11 +10,11 @@ class DeleteSecret extends Component
     public $secretId;
     public $secret;
 
-    public function mount($secretId)
-    {
-        $this->secretId = $secretId;
-        $this->secret = Secret::find($secretId);
-    }
+    // public function mount($secretId)
+    // {
+    //     $this->secretId = $secretId;
+    //     $this->secret = Secret::find($secretId);
+    // }
 
     public function deleteSecret()
     {

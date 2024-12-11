@@ -7,7 +7,6 @@
                 <tr>
                     <th class="px-6 py-2 border-b text-center">Type</th>
                     <th class="px-6 py-2 border-b text-center">Alias</th>
-                    <th class="px-6 py-2 border-b text-center">URL</th>
                     <th class="px-6 py-2 border-b text-center">Days left</th>
                     <th class="px-6 py-2 border-b text-center">Clicks left</th>
                     <th class="px-6 py-2 border-b text-center">Creation date</th>
@@ -15,22 +14,13 @@
                 </tr>
             </thead>
             <tbody>
-                @forelse ($secrets as $secret)
+                @foreach ($secrets as $secret)
                     <tr class="">
                         <td class="px-6 py-2 border-b capitalize text-center">{{ $secret->secret_type }}</td>
                         <td class="px-6 py-2 border-b text-center">
                             <span title="{{ $secret->alias }}">
                                 {{ Str::limit($secret->alias, 15, '...') }}
                             </span>
-                        </td>
-                        <td class="px-6 py-2 border-b text-center">
-                            <button id="copyUrlButton{{ $secret->url_identifier }}"
-                                onclick="copyToClipboard('{{ $secret->url_identifier }}', '{{ $secret->message_key }}', '{{ auth()->user()->master_key }}')"
-                                class="text-blue-600 hover:text-blue-800">
-                                <span class="material-symbols-outlined text-base" id="copyIcon">
-                                    content_copy
-                                </span>
-                            </button>
                         </td>
                         <td class="px-6 py-2 border-b text-center">
                             {{ $secret->days_expiration ? $secret->days_remaining : '-' }}
@@ -40,19 +30,15 @@
                         </td>
                         <td class="px-6 py-2 border-b text-center">{{ $secret->created_at->format('d/m/Y') }}</td>
                         <td class="px-6 py-2 border-b text-center flex items-center justify-center">
+                            <x-icon-button type="blue-700" icon="content_copy"
+                                id="copyUrlButton{{ $secret->url_identifier }}"
+                                onclick="copyToClipboard('{{ $secret->url_identifier }}', '{{ $secret->message_key }}', '{{ auth()->user()->master_key }}')" />
                             <x-icon-link type="blue-700" icon="manage_search"
                                 href="{{ route('secret.details', $secret->id) }}" />
-                            <livewire:delete-secret :secretId="$secret->id" :wire:key="'delete-secret-' . uniqid()" />
+                            <livewire:delete-secret :secretId="$secret->id" :wire:key="'delete-secret-' . $secret->id" />
                         </td>
                     </tr>
-                @empty
-                    <tr class="text-gray-400 text-sm">
-                        <td colspan="7" class="px-6 py-4   text-center">No secrets found
-                        </td>
-                    </tr>
-                @endforelse
-
-
+                @endforeach
             </tbody>
         </table>
     </div>
