@@ -28,17 +28,33 @@ class ShowSecret extends Component
     public function mount($secret)
     {
 
-
         $currentDate = now();
         $expirationDate = $secret->created_at->addDays($secret->days_remaining);
 
         if (($secret->clicks_expiration && $secret->clicks_remaining <= 0) || ($secret->days_expiration && $currentDate->greaterThan($expirationDate))) {
             $this->dispatch('getLogLocation', false);
-            //$this->createSecretLog(false);
-            return redirect(route('secrets.create'))->with('status', [
-                'message' => 'The secret has expired',
-                'class' => 'toast-danger',
-            ]);
+
+            $ip = request()->ip();
+
+        // Hacer una solicitud a un servicio de geolocalización
+        $response = Http::withOptions(['verify' => false])->get('https://api.ip2location.io/', [
+            'key' => '78738552C7CE2DF260F21C9EE99E9099',
+            'ip' => $ip
+        ]);
+
+
+        $country = $response->json()['country_name'];
+        $city = $response->json()['city_name'];
+
+        $this->createSecretLog(false, $country, $city);
+
+        return redirect(route('secrets.create'))->with('status', [
+            'message' => 'The secret has expired',
+            'class' => 'toast-danger',
+        ]);
+
+        
+
         }
 
         $this->messageKey = request()->query('key');
@@ -57,7 +73,6 @@ class ShowSecret extends Component
         if (!$this->passwordProtected) {
             $this->updateSecretClicks($secret);
             $this->dispatch('getLogLocation', true);
-            //$this->createSecretLog(true);
         }
     }
 
@@ -133,12 +148,10 @@ class ShowSecret extends Component
             
             $this->render();
             $this->dispatch('getLogLocation', true);
-            //$this->createSecretLog(true);
         }
         else{
             $this->passwordError = "Incorrect password";
             $this->dispatch('getLogLocation', false);
-            //$this->createSecretLog(false);
         }
     }
 
