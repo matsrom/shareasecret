@@ -15,10 +15,22 @@
         // Coordenadas de ejemplo o reales (pasadas desde Laravel)
         var locations = @json($locations);
 
+        var greenIcon = L.icon({
+            iconUrl: "{{ asset('map-pin.png') }}",
+
+            iconSize: [40, 40], // size of the icon
+            iconAnchor: [20, 40], // point of the icon which will correspond to marker's location
+            shadowAnchor: [4, 62], // the same for the shadow
+            popupAnchor: [-3, -76], // point from which the popup should open relative to the iconAnchor
+        });
+
+
         // Añadir marcadores al mapa
         locations.forEach(function(location) {
             if (location.latitude && location.longitude) {
-                L.marker([location.latitude, location.longitude])
+                L.marker([location.latitude, location.longitude], {
+                        icon: greenIcon
+                    })
                     .addTo(map)
                     .bindPopup(
                         `<strong>${location.city || 'Unknown City'}, ${location.country || 'Unknown Country'}</strong>`
