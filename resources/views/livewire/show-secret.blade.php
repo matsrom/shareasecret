@@ -41,6 +41,8 @@
 
                 const country = data.country_name;
                 const city = data.city_name;
+                const latitude = data.latitude;
+                const longitude = data.longitude;
 
                 console.log(country);
                 console.log(city);
@@ -49,7 +51,9 @@
                 Livewire.dispatch('createSecretLog', {
                     success: success[0],
                     country: country,
-                    city: city
+                    city: city,
+                    latitude: latitude,
+                    longitude: longitude
                 });
             });
         </script>

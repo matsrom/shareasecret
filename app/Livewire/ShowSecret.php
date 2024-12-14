@@ -173,7 +173,7 @@ class ShowSecret extends Component
         $this->redirect(route('secrets.create'));
     }
 
-    public function createSecretLog($success, $country, $city){;
+    public function createSecretLog($success, $country, $city, $latitude, $longitude){;
         $secretLog = new SecretLog();
         $secretLog->secret_id = $this->secret->id;
         $secretLog->ip_address = request()->ip();
@@ -184,6 +184,8 @@ class ShowSecret extends Component
         $secretLog->city = $city;
         $secretLog->access_date = now();
         $secretLog->is_successful = $success;
+        $secretLog->latitude = $latitude;
+        $secretLog->longitude = $longitude;
         $secretLog->save();
     }
 

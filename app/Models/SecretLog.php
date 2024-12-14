@@ -15,7 +15,9 @@ class SecretLog extends Model
         'country',
         'city',
         'access_date',
-        'is_successful'
+        'is_successful',
+        'latitude',
+        'longitude',
     ];
 
 
