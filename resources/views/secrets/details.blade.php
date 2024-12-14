@@ -4,52 +4,60 @@
 
 
         <div class="flex flex-col md:flex-row gap-4 md:gap-10">
-            <div class="max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow">
-                <a href="#">
-                    <h5 class="mb-2 text-xl font-bold tracking-tight text-gray-900">Secret details</h5>
-                </a>
-                <p class="text-gray-700">Alias: <span class="text-gray-800 font-bold">{{ $secret->alias }}</span></p>
-                <p class="text-gray-700">Type: <span class="text-gray-800 font-bold">{{ $secret->secret_type }}</span></p>
-                </p>
-                <div class="text-gray-700 flex items-center gap-1">URL:
-                    <button id="urlButton" class="items-center text-blue-700 font-bold" onclick="copyUrlToClipboard()">
-                        {{ $secret->url_identifier }}
-                        <span class="material-symbols-outlined text-base" id="copyIcon">
-                            content_copy
-                        </span>
-                    </button>
-                    <input type="text" id="secret-url" value="" class="hidden">
+            <div class="flex flex-col gap-4 md:w-96">
+                {{-- Secret details --}}
+                <div class="p-6 bg-white border border-gray-200 rounded-lg shadow">
+                    <a href="#">
+                        <h5 class="mb-2 text-xl font-bold tracking-tight text-gray-900">Secret details</h5>
+                    </a>
+                    <p class="text-gray-700">Alias: <span class="text-gray-800 font-bold">{{ $secret->alias }}</span></p>
+                    <p class="text-gray-700">Type: <span
+                            class="text-gray-800 font-bold">{{ $secret->secret_type }}</span>
+                    </p>
+                    </p>
+                    <div class="text-gray-700 flex items-center gap-1">URL:
+                        <button id="urlButton" class="items-center text-blue-700 font-bold"
+                            onclick="copyUrlToClipboard()">
+                            {{ $secret->url_identifier }}
+                            <span class="material-symbols-outlined text-base" id="copyIcon">
+                                content_copy
+                            </span>
+                        </button>
+                        <input type="text" id="secret-url" value="" class="hidden">
+                    </div>
+                    <p class="text-gray-700">Creation date: <span
+                            class="text-gray-800 font-bold">{{ $secret->created_at->format('d/m/Y H:i') }}</span></p>
                 </div>
-                <p class="text-gray-700">Creation date: <span
-                        class="text-gray-800 font-bold">{{ $secret->created_at->format('d/m/Y H:i') }}</span></p>
+
+                {{-- Secret settings --}}
+                <div class=" p-6 bg-white border border-gray-200 rounded-lg shadow">
+                    <a href="#">
+                        <h5 class="mb-2 text-xl font-bold tracking-tight text-gray-900">Secret settings</h5>
+                    </a>
+                    <p class="text-gray-700 flex gap-1">Days left:
+                        <span class="text-gray-800 font-bold">
+                            {{ $secret->days_expiration ? $secret->days_remaining : '-' }}</span>
+
+                    </p>
+
+                    <p class="text-gray-700 flex gap-1">Clicks left:
+                        <span class="text-gray-800 font-bold">
+                            {{ $secret->clicks_expiration ? $secret->clicks_remaining : '-' }}</span>
+
+                    </p>
+
+                    <p class="text-gray-700">Manual deletion : <span
+                            class="text-gray-800 font-bold">{{ $secret->manual_deletion ? 'Yes' : 'No' }}</span></p>
+
+                    <p class="text-gray-700">Password protection : <span
+                            class="text-gray-800 font-bold">{{ $secret->is_password_protected ? 'Yes' : 'No' }}</span>
+                    </p>
+
+                </div>
             </div>
 
-            {{-- Secret settings --}}
-            <div class="max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow">
-                <a href="#">
-                    <h5 class="mb-2 text-xl font-bold tracking-tight text-gray-900">Secret settings</h5>
-                </a>
-                <p class="text-gray-700 flex gap-1">Days left:
-                    <span class="text-gray-800 font-bold">
-                        {{ $secret->days_expiration ? $secret->days_remaining : '-' }}</span>
-
-                </p>
-
-                <p class="text-gray-700 flex gap-1">Clicks left:
-                    <span class="text-gray-800 font-bold">
-                        {{ $secret->clicks_expiration ? $secret->clicks_remaining : '-' }}</span>
-
-                </p>
-
-                <p class="text-gray-700">Manual deletion : <span
-                        class="text-gray-800 font-bold">{{ $secret->manual_deletion ? 'Yes' : 'No' }}</span></p>
-
-                <p class="text-gray-700">Password protection : <span
-                        class="text-gray-800 font-bold">{{ $secret->is_password_protected ? 'Yes' : 'No' }}</span></p>
-
-
-
-            </div>
+            {{-- Map --}}
+            <livewire:log-map :secretId="$secret->id" />
 
         </div>
 

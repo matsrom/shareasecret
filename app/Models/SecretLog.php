@@ -18,6 +18,7 @@ class SecretLog extends Model
         'is_successful'
     ];
 
+
     public function secret()
     {
         return $this->belongsTo(Secret::class);
