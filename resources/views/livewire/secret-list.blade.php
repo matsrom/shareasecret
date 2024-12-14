@@ -34,7 +34,7 @@
                                 id="copyUrlButton{{ $secret->url_identifier }}"
                                 onclick="copyToClipboard('{{ $secret->url_identifier }}', '{{ $secret->message_key }}', '{{ auth()->user()->master_key }}')" />
                             <x-icon-link type="blue-700" icon="manage_search"
-                                href="{{ route('secret.details', $secret->id) }}" />
+                                href="{{ route('secret.log', $secret->id) }}" />
                             <livewire:delete-secret :secretId="$secret->id" :wire:key="'delete-secret-' . $secret->id" />
                         </td>
                     </tr>

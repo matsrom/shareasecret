@@ -22,8 +22,16 @@
         <div class="mt-4">
             <x-input-label for="password" :value="__('Password')" />
 
-            <x-text-input id="password" class="block mt-1 w-full" type="password" name="password" required
-                autocomplete="new-password" />
+            <div class="relative">
+                <x-text-input id="password" class="block mt-1 w-full" type="password" name="password" required
+                    autocomplete="new-password" />
+
+                <span id="togglePasswordIcon"
+                    class="text-blue-700 material-symbols-outlined absolute right-2 top-1/2 transform -translate-y-1/2 cursor-pointer select-none"
+                    onclick="togglePassword()">
+                    visibility
+                </span>
+            </div>
 
             <x-input-error :messages="$errors->get('password')" class="mt-2" />
         </div>
@@ -33,7 +41,7 @@
             <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
 
             <x-text-input id="password_confirmation" class="block mt-1 w-full" type="password"
-                name="password_confirmation" required autocomplete="new-password" />
+                name="password_confirmation" id="password_confirmation" required autocomplete="new-password" />
 
             <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
         </div>
@@ -54,9 +62,23 @@
     </form>
 
     <script>
+        function togglePassword() {
+            var x = document.getElementById("password");
+            var y = document.getElementById("password_confirmation");
+            var icon = document.getElementById("togglePasswordIcon");
+
+            if (x.type === "password") {
+                x.type = "text";
+                y.type = "text";
+                icon.textContent = "visibility_off";
+            } else {
+                x.type = "password";
+                y.type = "password";
+                icon.textContent = "visibility";
+            }
+        }
+
         async function handleSubmit(event) {
-
-
             event.preventDefault();
 
             try {

@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="container mx-auto px-4">
+    <div class="container mx-auto px-4 pb-10">
         <h2 class="text-2xl font-bold mb-6 mt-10">Secret details</h2>
 
 
@@ -70,7 +70,6 @@
                         <th class="px-6 py-2 border-b text-center">IP</th>
                         <th class="px-6 py-2 border-b text-center">Browser</th>
                         <th class="px-6 py-2 border-b text-center">OS</th>
-                        <th class="px-6 py-2 border-b text-center">Device</th>
                         <th class="px-6 py-2 border-b text-center">Country</th>
                         <th class="px-6 py-2 border-b text-center">City</th>
                         <th class="px-6 py-2 border-b text-center">Access date</th>
@@ -83,7 +82,6 @@
                             <td class="px-6 py-2 border-b text-center">{{ $secretLog->ip_address }}</td>
                             <td class="px-6 py-2 border-b text-center">{{ $secretLog->browser }}</td>
                             <td class="px-6 py-2 border-b text-center">{{ $secretLog->os }}</td>
-                            <td class="px-6 py-2 border-b text-center">{{ $secretLog->device }}</td>
                             <td class="px-6 py-2 border-b text-center">{{ $secretLog->country }}</td>
                             <td class="px-6 py-2 border-b text-center">{{ $secretLog->city }}</td>
                             <td class="px-6 py-2 border-b text-center">

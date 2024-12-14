@@ -14,11 +14,19 @@
         </div>
 
         <!-- Password -->
-        <div class="mt-4">
+        <div class="mt-4 relative">
             <x-input-label for="password" :value="__('Password')" />
 
-            <x-text-input id="password" class="block mt-1 w-full" type="password" name="password" required
-                autocomplete="current-password" />
+            <div class="relative">
+                <x-text-input id="password" class="block mt-1 w-full pr-10" type="password" name="password" required
+                    autocomplete="current-password" id="password" />
+
+                <span id="togglePasswordIcon"
+                    class="text-blue-700 material-symbols-outlined absolute right-2 top-1/2 transform -translate-y-1/2 cursor-pointer select-none"
+                    onclick="togglePassword()">
+                    visibility
+                </span>
+            </div>
 
             <x-input-error :messages="$errors->get('password')" class="mt-2" />
         </div>
@@ -50,6 +58,19 @@
         </div>
     </form>
     <script>
+        function togglePassword() {
+            var x = document.getElementById("password");
+            var icon = document.getElementById("togglePasswordIcon");
+
+            if (x.type === "password") {
+                x.type = "text";
+                icon.textContent = "visibility_off";
+            } else {
+                x.type = "password";
+                icon.textContent = "visibility";
+            }
+        }
+
         async function handleSubmit(event) {
 
 

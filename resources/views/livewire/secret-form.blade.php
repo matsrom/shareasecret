@@ -116,11 +116,8 @@
             @endif
         @else
             <input type="file" wire:model="secret"
-                class="file:!ml-10 block w-full text-sm
-file:!mr-4 file:!py-2 file:!px-4 file:!rounded-md
-file:!border-0 file:!text-sm file:!font-semibold
-file:!bg-blue-700 !file:!text-white
-hover:file:bg-gray-700 file:cursor-pointer">
+                class="block w-full text-sm file:!bg-blue-700 border-gray-300 rounded-lg cursor-pointer bg-gray-50  focus:outline-none ">
+
             @error('secret')
                 <livewire:show-alert :message="$message" />
             @enderror
