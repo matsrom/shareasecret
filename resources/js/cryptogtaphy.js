@@ -27,6 +27,46 @@ window.aesEncrypt = async function aesEncrypt(data, password, difficulty = 10) {
     return base64Encode(new Uint8Array(result));
 };
 
+window.aesEncryptFile = async function aesEncryptFile(
+    file,
+    password,
+    difficulty = 10
+) {
+    const reader = new FileReader();
+    return new Promise((resolve, reject) => {
+        reader.onload = async function (e) {
+            const data = e.target.result;
+            const hashKey = await grindKey(password, difficulty);
+            const iv = await getIv(password, data);
+
+            const key = await window.crypto.subtle.importKey(
+                "raw",
+                hashKey,
+                {
+                    name: "AES-GCM",
+                },
+                false,
+                ["encrypt"]
+            );
+            const encrypted = await window.crypto.subtle.encrypt(
+                { name: "AES-GCM", iv },
+                key,
+                data
+            );
+
+            const result = new Uint8Array(iv.length + encrypted.byteLength);
+            result.set(iv);
+            result.set(new Uint8Array(encrypted), iv.length);
+
+            const base64String = base64Encode(result);
+            resolve(base64String);
+        };
+
+        reader.onerror = reject;
+        reader.readAsArrayBuffer(file);
+    });
+};
+
 // Función para derivar clave usando PBKDF2
 window.deriveKey = async function deriveKey(
     password,
@@ -88,6 +128,57 @@ window.aesDecrypt = async function aesDecrypt(
     );
 
     return new TextDecoder("utf-8").decode(new Uint8Array(decrypted));
+};
+
+window.aesDecryptFile = async function aesDecryptFile(
+    encryptedBase64,
+    password,
+    originalFilename,
+    difficulty = 10
+) {
+    const encryptedData = base64Decode(encryptedBase64);
+    const iv = encryptedData.slice(0, 12); // Extraer IV
+    const data = encryptedData.slice(12); // Extraer datos encriptados
+    const hashKey = await grindKey(password, difficulty);
+
+    const key = await window.crypto.subtle.importKey(
+        "raw",
+        hashKey,
+        {
+            name: "AES-GCM",
+        },
+        false,
+        ["decrypt"]
+    );
+
+    try {
+        const decrypted = await window.crypto.subtle.decrypt(
+            {
+                name: "AES-GCM",
+                iv: iv,
+                tagLength: 128,
+            },
+            key,
+            data
+        );
+
+        // Crear un Blob a partir de los datos desencriptados
+        const blob = new Blob([decrypted], {
+            type: "application/octet-stream",
+        });
+
+        // Crear un enlace de descarga
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = originalFilename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    } catch (error) {
+        console.error("Error al desencriptar el archivo:", error);
+    }
 };
 
 function grindKey(password, difficulty) {

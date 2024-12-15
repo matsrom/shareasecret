@@ -22,6 +22,8 @@ class ShowSecret extends Component
     public $password;
     public $passwordError = false;
 
+    public $modalVisible = false;
+
 
     protected $listeners = ['decryptText', 'decryptFile', 'createSecretLog'];
 
@@ -31,130 +33,68 @@ class ShowSecret extends Component
         $currentDate = now();
         $expirationDate = $secret->created_at->addDays($secret->days_remaining);
 
+        // If the secret has expired, get the location of the user and create a log
         if (($secret->clicks_expiration && $secret->clicks_remaining <= 0) || ($secret->days_expiration && $currentDate->greaterThan($expirationDate))) {
-            $this->dispatch('getLogLocation', false);
+            $this->dispatch('getLogLocationAndCreateLog', false);
 
             $ip = request()->ip();
+            $response = Http::withOptions(['verify' => false])->get('https://api.ip2location.io/', [
+                'key' => '78738552C7CE2DF260F21C9EE99E9099',
+                'ip' => $ip
+            ]);
 
-        // Hacer una solicitud a un servicio de geolocalización
-        $response = Http::withOptions(['verify' => false])->get('https://api.ip2location.io/', [
-            'key' => '78738552C7CE2DF260F21C9EE99E9099',
-            'ip' => $ip
-        ]);
+            $country = $response->json()['country_name'];
+            $city = $response->json()['city_name'];
+            $latitude = $response->json()['latitude'];
+            $longitude = $response->json()['longitude'];
 
+            $this->createSecretLog(false, $country, $city, $latitude, $longitude);
 
-        $country = $response->json()['country_name'];
-        $city = $response->json()['city_name'];
-        $latitude = $response->json()['latitude'];
-        $longitude = $response->json()['longitude'];
-
-        $this->createSecretLog(false, $country, $city, $latitude, $longitude);
-
-        return redirect(route('secrets.create'))->with('status', [
-            'message' => 'The secret has expired',
-            'class' => 'toast-danger',
-        ]);
-
-        
-
+            return redirect(route('secrets.create'))->with('status', [
+                'message' => 'The secret has expired',
+                'class' => 'toast-danger',
+            ]);
         }
 
-        $this->messageKey = request()->query('key');
-
-        if ($secret->secret_type === 'text') {
-            $this->decryptText($this->messageKey);
-        } else if ($secret->secret_type === 'file') {
-            $this->messageKey = request()->query('key');
-        } else {
-            abort(403, 'Unauthorized');
-        }
-
-        $this->passwordProtected = $secret->is_password_protected;
+        // If the secret is not expired, decrypt the secret
+    
+        $this->passwordProtected = $secret->is_password_protected; 
         $this->manualDeletion = $secret->allow_manual_deletion;
 
-        if (!$this->passwordProtected) {
+        if(!$this->passwordProtected && $secret->secret_type === 'text'){
+            $this->dispatch('decryptSecret', data: $secret, master_key: auth()->user()->master_key);
             $this->updateSecretClicks($secret);
-            $this->dispatch('getLogLocation', true);
+            $this->dispatch('getLogLocationAndCreateLog', true);
+        }else if(!$secret->secret_type === 'text' && !$secret->secret_type === 'file'){
+            abort(403, 'Unauthorized');
         }
     }
 
-
-    function decryptText($messageKey){
-        $iv = base64_decode($this->secret->message_iv);
-        $tag = base64_decode($this->secret->message_tag);
-        $encryptedMessage = base64_decode($this->secret->message);
-
-        // Desencriptar el mensaje usando AES-256-GCM
-        $decryptedMessage = openssl_decrypt(
-            $encryptedMessage,
-            'aes-256-gcm',
-            $messageKey,
-            0,
-            $iv,
-            $tag
-        );
-
-
-
-        if ($decryptedMessage === false) {
-            abort(500, 'Failed to decrypt the message.');
-        }
-        $this->decryptedMessage = $decryptedMessage;
-
-    }
-
-    public function decryptFile($messageKey)
+    public function decryptFile()
     {
-        $filePath = storage_path('app/public/' . $this->secret->message);
-        
-        if (!file_exists($filePath)) {
-            abort(404, 'Archivo no encontrado.');
-        }
-
-        $encryptedFileContents = file_get_contents($filePath);
-        
-
-
-        $iv = base64_decode($this->secret->message_iv);
-        $tag = base64_decode($this->secret->message_tag);
-
-        $decryptedFileContents = openssl_decrypt(
-            $encryptedFileContents,
-            'aes-256-gcm',
-            $messageKey,
-            0,
-            $iv,
-            $tag
-        );
-
-        if ($decryptedFileContents === false) {
-            abort(500, 'Error al desencriptar el archivo.');
-        }
-
-        $originalFilename = Crypt::decryptString($this->secret->original_filename);
-
-        return response()->streamDownload(function () use ($decryptedFileContents) {
-            echo $decryptedFileContents;
-        }, $originalFilename, [
-            'Content-Type' => mime_content_type(storage_path('app/public/' . $this->secret->message))
-        ]);
+        $this->dispatch('decryptSecret', data: $this->secret, message_key: $this->messageKey, master_key: auth()->user()->master_key);
     }
 
     public function showSecret()
     {
         if (Hash::check($this->password, $this->secret->password_hash)) {
             $this->passwordProtected = false;
+            if($this->secret->secret_type === 'text'){
+                $this->dispatch('decryptSecret', data: $this->secret, master_key: auth()->user()->master_key);
+            } 
+            
             if($this->secret->clicks_expiration){
                 $this->updateSecretClicks($this->secret);
             }
-            
+            $this->dispatch('getLogLocationAndCreateLog', true);
             $this->render();
-            $this->dispatch('getLogLocation', true);
+            
         }
         else{
+            $this->dispatch('getLogLocationAndCreateLog', false);
             $this->passwordError = "Incorrect password";
-            $this->dispatch('getLogLocation', false);
         }
+        
     }
 
     private function updateSecretClicks(Secret $secret): void
@@ -164,6 +104,18 @@ class ShowSecret extends Component
             $secret->save();
         }
        
+    }
+
+    public function openDeleteModal()
+    {
+        $this->modalVisible = true;
+        $this->render();
+    }
+
+    public function closeModal()
+    {
+        $this->modalVisible = false;
+        $this->render();
     }
 
     public function deleteSecret()

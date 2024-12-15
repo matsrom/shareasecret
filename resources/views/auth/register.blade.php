@@ -88,7 +88,10 @@
                 localStorage.setItem('derivedKey', derivedKey);
 
                 // const masterKey = randomBytes(32);
-                const masterKey = "12345678901234567890123456789012";
+                // const masterKey = "12345678901234567890123456789012";
+                const masterKey = crypto.getRandomValues(new Uint8Array(32)).reduce((str, byte) => str + String
+                    .fromCharCode(byte), '');
+
 
                 const encryptedMasterKey = await aesEncrypt(masterKey, derivedKey);
                 document.getElementById('encryptedMasterKey').value = encryptedMasterKey;
