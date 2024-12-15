@@ -75,8 +75,7 @@
             const encryptedMessageKey = "{{ $secret->message_key }}"
 
             const masterKey = await aesDecrypt(encryptedMasterKey, derivedKey);
-            const decodedMessageKey = atob(encryptedMessageKey);
-            const messageKey = await aesDecrypt(decodedMessageKey, masterKey);
+            const messageKey = await aesDecrypt(encryptedMessageKey, masterKey);
 
             const url = window.location.origin + '/secret/' + urlIdentifier + '?key=' + messageKey;
 

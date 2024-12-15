@@ -182,11 +182,18 @@ class SecretForm extends Component
             'allow_manual_deletion' => $this->allowManualDelete,
             'is_password_protected' => $this->password ? true : false,
             'password_hash' => $this->password ? bcrypt($this->password) : null,
+            'url_identifier' => Str::random(16),
+            'days_expiration' => !is_null($this->daysLeft) && $this->daysLeft > 0,
+            'clicks_expiration' => !is_null($this->clicksLeft) && $this->clicksLeft > 0,
         ];
 
-        $data['days_expiration'] = !is_null($this->daysLeft) && $this->daysLeft > 0;
-        $data['clicks_expiration'] = !is_null($this->clicksLeft) && $this->clicksLeft > 0;
-
+        if ($this->secret_type === SecretType::Text && $this->text_type === 'manual') {
+            $data['text_type'] = 'manual';
+        }elseif ($this->secret_type === SecretType::Text && $this->text_type === 'automatic') {
+            $data['text_type'] = 'automatic';
+        }elseif ($this->secret_type === SecretType::File) {
+            $data['original_filename'] = $this->secret->getClientOriginalName();
+        }
 
         if (auth()->user()) {
             $data['keep_track'] = $this->keepTrack;
@@ -198,47 +205,41 @@ class SecretForm extends Component
         $messageKey = Str::random(32); // Clave completa
         $this->urlKey = $messageKey;
 
+        $this->dispatch('encryptSecret', data: $data, masterKey: auth()->user()->master_key, message_key: $messageKey);
         // Procesar el secreto según su tipo (texto o archivo)
-        if ($this->secret_type === SecretType::Text) {
-            // Encriptar el mensaje de texto usando `messageKey`
-            $iv = random_bytes(12);
-            $encryptedMessage = openssl_encrypt($this->secret, 'aes-256-gcm', $messageKey, 0, $iv, $tag);
+        // if ($this->secret_type === SecretType::Text) {
+        //     $this->dispach('encryptText', $this->secret, $messageKey);
+        //     // Encriptar el mensaje de texto usando `messageKey`
+        //     $iv = random_bytes(12);
+        //     $encryptedMessage = openssl_encrypt($this->secret, 'aes-256-gcm', $messageKey, 0, $iv, $tag);
 
-            $data['message'] = base64_encode($encryptedMessage);
-            $data['message_iv'] = base64_encode($iv);
-            $data['message_tag'] = base64_encode($tag);
-        } elseif ($this->secret_type === SecretType::File) {
-            $originalFilename = $this->secret->getClientOriginalName();
+        //     $data['message'] = base64_encode($encryptedMessage);
+        //     $data['message_iv'] = base64_encode($iv);
+        //     $data['message_tag'] = base64_encode($tag);
+        // } elseif ($this->secret_type === SecretType::File) {
+        //     $originalFilename = $this->secret->getClientOriginalName();
 
-            // Encriptar el archivo
-            $iv = random_bytes(12);
-            $fileContents = file_get_contents($this->secret->getRealPath());
-            $encryptedFileContents = openssl_encrypt($fileContents, 'aes-256-gcm', $messageKey, 0, $iv, $tag);
+        //     // Encriptar el archivo
+        //     $iv = random_bytes(12);
+        //     $fileContents = file_get_contents($this->secret->getRealPath());
+        //     $encryptedFileContents = openssl_encrypt($fileContents, 'aes-256-gcm', $messageKey, 0, $iv, $tag);
 
-            $path = 'secrets/' . Str::random(40) . '.enc';
-            Storage::disk('public')->put($path, $encryptedFileContents);
+        //     $path = 'secrets/' . Str::random(40) . '.enc';
+        //     Storage::disk('public')->put($path, $encryptedFileContents);
 
-            $data['message'] = $path;
-            $data['message_iv'] = base64_encode($iv);
-            $data['message_tag'] = base64_encode($tag);
+        //     $data['message'] = $path;
+        //     $data['message_iv'] = base64_encode($iv);
+        //     $data['message_tag'] = base64_encode($tag);
 
-            // Encripta el nombre original
-            $data['original_filename'] = Crypt::encryptString($originalFilename);
-        }
+        //     // Encripta el nombre original
+        //     $data['original_filename'] = Crypt::encryptString($originalFilename);
+        // }
 
 
-        $data['url_identifier'] = Str::random(16);
+        
 
         // If the user is logged in, encrypt the message key with the user's master key
-        if (auth()->user()) {
-            $data['message_key'] = $messageKey;
 
-            $this->dispatch('createSecretWhenLoggedIn', data: $data, masterKey: auth()->user()->master_key);
-        }else{
-            // If the user is not logged in, store the message key as is
-            $data['message_key'] = "";
-            $this->storeSecret($data);
-        }
 
         //$secret = Secret::create($data);
 
@@ -248,7 +249,10 @@ class SecretForm extends Component
     }
 
     function storeSecret($data) {
-        // dd($data);
+        if(!auth()->user() || $data['keep_track'] == 0) {
+            $data['message_key'] = "";
+        }
+
         $secret = Secret::create($data);
         session(['urlKey' => $this->urlKey]);
         return redirect()->route('secrets.success', ['secret' => $secret]);

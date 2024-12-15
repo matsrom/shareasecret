@@ -56,8 +56,8 @@
             @if ($this->text_type == 'manual')
                 {{-- Manual text --}}
                 <div>
-                    <x-input-label for="description" :value="__('Write the text to share')" />
-                    <textarea id="description" class="border-gray-300 focus:border-blue-700  rounded-md shadow-sm w-full h-48"
+                    <x-input-label for="manual_secret" :value="__('Write the text to share')" />
+                    <textarea id="manual_secret" class="border-gray-300 focus:border-blue-700  rounded-md shadow-sm w-full h-48"
                         wire:model="secret"></textarea>
                     @error('secret')
                         <livewire:show-alert :message="$message" />
@@ -99,9 +99,9 @@
 
                 {{-- Result --}}
                 <div>
-                    <x-input-label class="mt-2 md:mt-5" :value="__('Result')" />
+                    <x-input-label class="mt-2 md:mt-5" :value="__('Result')" for="automatic_secret" />
                     <div class="flex items-center">
-                        <textarea id="result" class="border-gray-300 focus:border-blue-700  rounded-md shadow-sm w-full h-30"
+                        <textarea id="automatic_secret" class="border-gray-300 focus:border-blue-700  rounded-md shadow-sm w-full h-30"
                             wire:model="secret" readonly></textarea>
 
                         <button class="pl-2 text-blue-700 hover:text-gray-700 flex" type="button"
@@ -115,7 +115,7 @@
                 </div>
             @endif
         @else
-            <input type="file" wire:model="secret"
+            <input type="file" wire:model="secret" id="file_secret"
                 class="block w-full text-sm file:!bg-blue-700 border-gray-300 rounded-lg cursor-pointer bg-gray-50  focus:outline-none ">
 
             @error('secret')
@@ -270,21 +270,43 @@
     </div>
     @script
         <script>
-            $wire.on('createSecretWhenLoggedIn', async (event) => {
+            $wire.on('encryptSecret', async (event) => {
+                // Get secretdata
                 const data = event.data;
+                const messageKey = window.crypto.getRandomValues(new Uint8Array(16));
+                const encodedMessageKey = btoa(String.fromCharCode(...messageKey));
+
+                // Get keys for encryption
                 const encryptedMasterKey = event.masterKey;
-
-                const messageKey = data.message_key;
-                console.log(messageKey);
+                console.log("encryptedMasterKey", encryptedMasterKey);
                 const derivedKey = localStorage.getItem('derivedKey');
-                console.log(derivedKey);
+                console.log("derivedKey", derivedKey);
                 const masterKey = await aesDecrypt(encryptedMasterKey, derivedKey);
-                console.log(masterKey);
-                const encryptedMessageKey = await aesEncrypt(messageKey, masterKey);
-                console.log(messageKey);
+                console.log("masterKey", masterKey);
 
-                data.message_key = btoa(encryptedMessageKey);
+                const encryptedMessageKey = await aesEncrypt(encodedMessageKey, masterKey);
+                console.log("encryptedMessageKey", encryptedMessageKey);
 
+                if (data.secret_type === 'text' && data.text_type === 'manual') {
+                    const text = document.getElementById("manual_secret").value;
+                    data.message = await aesEncrypt(text, masterKey);
+                } else if (data.secret_type === 'text' && data.text_type === 'automatic') {
+                    const text = document.getElementById("automatic_secret").value;
+                    data.message = await aesEncrypt(text, masterKey);
+                } else if (data.secret_type === 'file') {
+                    const file = document.getElementById("file_secret").files[0];
+                    data.message = await aesEncryptFile(file, masterKey);
+                    const file_name = file.name;
+                    const original_filename = await aesEncrypt(file_name, masterKey);
+
+                    data.original_filename = original_filename;
+                }
+
+                data.message_key = encryptedMessageKey;
+
+
+                data.message_iv = "";
+                data.message_tag = "";
 
                 $wire.dispatch('storeSecret', [data]);
             });
