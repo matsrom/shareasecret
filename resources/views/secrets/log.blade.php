@@ -1,18 +1,17 @@
 <x-app-layout>
     <div class="container mx-auto px-4 pb-10">
-        <h2 class="text-2xl font-bold mb-6 mt-10">Secret details</h2>
+        <h2 class="text-2xl font-bold mb-6 mt-10">Secret info</h2>
 
 
         <div class="flex flex-col md:flex-row gap-4 md:gap-10">
             <div class="flex flex-col gap-4 md:w-96">
                 {{-- Secret details --}}
-                <div class="p-6 bg-white border border-gray-200 rounded-lg shadow">
-                    <a href="#">
-                        <h5 class="mb-2 text-xl font-bold tracking-tight text-gray-900">Secret details</h5>
-                    </a>
+                <div class="px-6 py-4 bg-white border border-gray-200 rounded-lg shadow">
+
+                    <h5 class="mb-2  font-bold tracking-tight text-gray-900">Details</h5>
+
                     <p class="text-gray-700">Alias: <span class="text-gray-800 font-bold">{{ $secret->alias }}</span></p>
-                    <p class="text-gray-700">Type: <span
-                            class="text-gray-800 font-bold">{{ $secret->secret_type }}</span>
+                    <p class="text-gray-700">Type: <span class="text-gray-800 font-bold">{{ $secret->secret_type }}</span>
                     </p>
                     </p>
                     <div class="text-gray-700 flex items-center gap-1">URL:
@@ -25,15 +24,12 @@
                         </button>
                         <input type="text" id="secret-url" value="" class="hidden">
                     </div>
-                    <p class="text-gray-700">Creation date: <span
+                    <p class="text-gray-700 mb-2">Creation date: <span
                             class="text-gray-800 font-bold">{{ $secret->created_at->format('d/m/Y H:i') }}</span></p>
-                </div>
 
-                {{-- Secret settings --}}
-                <div class=" p-6 bg-white border border-gray-200 rounded-lg shadow">
-                    <a href="#">
-                        <h5 class="mb-2 text-xl font-bold tracking-tight text-gray-900">Secret settings</h5>
-                    </a>
+
+                    <h5 class="mb-2  font-bold tracking-tight text-gray-900">Settings</h5>
+
                     <p class="text-gray-700 flex gap-1">Days left:
                         <span class="text-gray-800 font-bold">
                             {{ $secret->days_expiration ? $secret->days_remaining : '-' }}</span>
@@ -61,43 +57,11 @@
 
         </div>
 
-        <h2 class="text-2xl font-bold mb-4 mt-10">Secret log</h2>
+        <h2 class="text-2xl font-bold mb-4 mt-5">Secret log</h2>
         {{-- Secret logs --}}
-        <div class="overflow-x-auto">
-            <table class="min-w-full">
-                <thead>
-                    <tr>
-                        <th class="px-6 py-2 border-b text-center">IP</th>
-                        <th class="px-6 py-2 border-b text-center">Browser</th>
-                        <th class="px-6 py-2 border-b text-center">OS</th>
-                        <th class="px-6 py-2 border-b text-center">Country</th>
-                        <th class="px-6 py-2 border-b text-center">City</th>
-                        <th class="px-6 py-2 border-b text-center">Access date</th>
-                        <th class="px-6 py-2 border-b text-center">Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse ($secretLogs as $secretLog)
-                        <tr class="text-gray-700">
-                            <td class="px-6 py-2 border-b text-center">{{ $secretLog->ip_address }}</td>
-                            <td class="px-6 py-2 border-b text-center">{{ $secretLog->browser }}</td>
-                            <td class="px-6 py-2 border-b text-center">{{ $secretLog->os }}</td>
-                            <td class="px-6 py-2 border-b text-center">{{ $secretLog->country }}</td>
-                            <td class="px-6 py-2 border-b text-center">{{ $secretLog->city }}</td>
-                            <td class="px-6 py-2 border-b text-center">
-                                {{ \Carbon\Carbon::parse($secretLog->access_date)->format('d/m/Y H:i') }}</td>
-                            <td class="px-6 py-2 border-b text-center">
-                                {{ $secretLog->is_successful ? 'Success' : 'Failed' }}</td>
-                        </tr>
-                    @empty
-                        <tr class="text-gray-400 text-sm">
-                            <td colspan="7" class="px-6 py-4   text-center">No logs found
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+
+        <livewire:secret-log-list :secret="$secret" />
+
 
     </div>
 

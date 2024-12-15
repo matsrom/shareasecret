@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="flex flex-col items-center justify-center  mt-32 md:mt-48">
+    <div class="flex flex-col items-center justify-center  mt-10 md:mt-48">
         <p class="text-2xl">Go ahead and share this secret!</p>
 
         <div class="flex flex-row gap-2 justify-center items-center mt-8 w-3/4">
@@ -13,7 +13,7 @@
             </button>
 
         </div>
-        <div class="mt-8 px-4 md:px-0">
+        <div class="mt-8 px-4 md:px-0  md:max-w-5xl">
             @if ($secret->days_remaining && $secret->clicks_remaining)
                 <p class="">This secret has been set to expire in <strong>{{ $secret->days_remaining }}</strong>
                     day{{ $secret->days_remaining > 1 ? 's' : '' }} and
@@ -38,8 +38,10 @@
             @endif
 
             @if ($secret->keep_track)
-                <p>This secret has been set to be tracked by you hand has been given the the alias
-                    <strong>{{ $secret->alias }}</strong>.
+                <p class="break-words">This secret has been set to be tracked by you hand has been given the the
+                    alias
+                    <strong><span class="md:hidden"><br>{{ Str::limit($secret->alias, 25, '...') }}</span></strong>
+                    <strong><span class="hidden md:block">{{ $secret->alias }}</span></strong>
                 </p>
             @endif
         </div>

@@ -1,4 +1,4 @@
-<div id="map" class="h-56 md:h-96 md:w-full rounded-md"></div>
+<div id="map" class="h-56 md:h-auto md:w-full rounded-md "></div>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {

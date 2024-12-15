@@ -5,6 +5,7 @@ use App\Http\Controllers\SecretController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ApiProxyController;
 
+
 // Route::get('/', function () {
 //     return view('home');
 // })->name('secrets.create');

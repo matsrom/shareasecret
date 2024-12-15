@@ -45,8 +45,10 @@ class ShowSecret extends Component
 
         $country = $response->json()['country_name'];
         $city = $response->json()['city_name'];
+        $latitude = $response->json()['latitude'];
+        $longitude = $response->json()['longitude'];
 
-        $this->createSecretLog(false, $country, $city);
+        $this->createSecretLog(false, $country, $city, $latitude, $longitude);
 
         return redirect(route('secrets.create'))->with('status', [
             'message' => 'The secret has expired',

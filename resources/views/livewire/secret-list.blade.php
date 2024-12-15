@@ -5,21 +5,26 @@
         <table class="min-w-full">
             <thead>
                 <tr>
-                    <th class="px-6 py-2 border-b text-center">Type</th>
-                    <th class="px-6 py-2 border-b text-center">Alias</th>
-                    <th class="px-6 py-2 border-b text-center">Days left</th>
-                    <th class="px-6 py-2 border-b text-center">Clicks left</th>
-                    <th class="px-6 py-2 border-b text-center">Creation date</th>
-                    <th class="px-6 py-2 border-b text-center">Actions</th>
+                    <th class="px-6 py-2 border-b text-center w-1/12 cursor-pointer" wire:click="sortBy('secret_type')">
+                        Type</th>
+                    <th class="px-6 py-2 border-b text-center w-5/12 cursor-pointer" wire:click="sortBy('alias')">Alias
+                    </th>
+                    <th class="px-6 py-2 border-b text-center w-1/12 cursor-pointer"
+                        wire:click="sortBy('days_remaining')">Days left</th>
+                    <th class="px-6 py-2 border-b text-center w-1/12 cursor-pointer"
+                        wire:click="sortBy('clicks_remaining')">Clicks left</th>
+                    <th class="px-6 py-2 border-b text-center w-2/12 cursor-pointer" wire:click="sortBy('created_at')">
+                        Creation date</th>
+                    <th class="px-6 py-2 border-b text-center w-2/12">Actions</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach ($secrets as $secret)
-                    <tr class="">
+                @forelse ($secrets as $secret)
+                    <tr>
                         <td class="px-6 py-2 border-b capitalize text-center">{{ $secret->secret_type }}</td>
                         <td class="px-6 py-2 border-b text-center">
                             <span title="{{ $secret->alias }}">
-                                {{ Str::limit($secret->alias, 15, '...') }}
+                                {{ Str::limit($secret->alias, 35, '...') }}
                             </span>
                         </td>
                         <td class="px-6 py-2 border-b text-center">
@@ -28,19 +33,29 @@
                         <td class="px-6 py-2 border-b text-center">
                             {{ $secret->clicks_expiration ? $secret->clicks_remaining : '-' }}
                         </td>
-                        <td class="px-6 py-2 border-b text-center">{{ $secret->created_at->format('d/m/Y') }}</td>
-                        <td class="px-6 py-2 border-b text-center flex items-center justify-center">
+                        <td class="px-6 py-2 border-b text-center">{{ $secret->created_at->format('d/m/Y') }}
+                        </td>
+                        <td class="px-6 py-2 border-b flex items-center justify-center">
                             <x-icon-button type="blue-700" icon="content_copy"
                                 id="copyUrlButton{{ $secret->url_identifier }}"
                                 onclick="copyToClipboard('{{ $secret->url_identifier }}', '{{ $secret->message_key }}', '{{ auth()->user()->master_key }}')" />
                             <x-icon-link type="blue-700" icon="manage_search"
                                 href="{{ route('secret.log', $secret->id) }}" />
-                            <livewire:delete-secret :secretId="$secret->id" :wire:key="'delete-secret-' . $secret->id" />
+                            <livewire:delete-secret :secretId="$secret->id" :wire:key="'delete-secret-' . uniqid()" />
                         </td>
                     </tr>
-                @endforeach
+                @empty
+                    <tr>
+                        <td colspan="6" class="text-center text-gray-400 text-sm py-4">No secrets found.</td>
+                    </tr>
+                @endforelse
             </tbody>
         </table>
+        <div class="mt-10">
+            {{ $secrets->links() }}
+
+
+        </div>
     </div>
 </div>
 
