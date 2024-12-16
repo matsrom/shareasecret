@@ -35,13 +35,14 @@
                         </td>
                         <td class="px-6 py-2 border-b text-center">{{ $secret->created_at->format('d/m/Y H:i') }}
                         </td>
-                        <td class="px-6 py-2 border-b flex items-center justify-center">
-                            <x-icon-button type="blue-700" icon="content_copy"
-                                id="copyUrlButton{{ $secret->url_identifier }}"
-                                onclick="copyToClipboard('{{ $secret->url_identifier }}', '{{ $secret->message_key }}', '{{ auth()->user()->master_key }}')" />
-                            <x-icon-link type="blue-700" icon="manage_search"
-                                href="{{ route('secret.log', $secret->id) }}" />
-                            <livewire:delete-secret :secretId="$secret->id" :wire:key="'delete-secret-' . uniqid()" />
+                        <td class="px-6 py-2 border-b ">
+                            <div class="flex items-center justify-center">
+                                <x-icon-button type="blue-700" icon="content_copy"
+                                    id="copyUrlButton{{ $secret->url_identifier }}"
+                                    onclick="copyToClipboard('{{ $secret->url_identifier }}', '{{ $secret->message_key }}', '{{ auth()->user()->master_key }}')" />
+                                <x-icon-link type="blue-700" icon="manage_search"
+                                    href="{{ route('secret.log', $secret->id) }}" />
+                                <livewire:delete-secret :secretId="$secret->id" :wire:key="'delete-secret-' . uniqid()" />
                         </td>
                     </tr>
                 @empty
