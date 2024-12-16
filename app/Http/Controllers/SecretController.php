@@ -16,9 +16,9 @@ class SecretController extends Controller
 
     public function success(Secret $secret){
         $urlKey = session('urlKey');
-        $shareLink = url("secret/{$secret->url_identifier}?key={$urlKey}");
 
-        return view('secrets.success', ['shareLink' => $shareLink, 'secret' => $secret]);
+
+        return view('secrets.success', ['secret' => $secret]);
     }
 
     public function show(Request $request, $url_identifier)

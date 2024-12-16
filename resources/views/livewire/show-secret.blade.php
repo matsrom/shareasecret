@@ -112,21 +112,15 @@
                 const secret = event.data;
                 const messageKey = new URL(window.location.href).searchParams.get('key');
 
-                // Obtener claves para la desencriptación
-                const encryptedMasterKey = event.master_key;
-                const derivedKey = localStorage.getItem('derivedKey');
-                const masterKey = await aesDecrypt(encryptedMasterKey, derivedKey);
-
-                // Desencriptar el mensaje
-
+                console.log(secret);
 
                 if (secret.secret_type === 'text') {
-                    const decryptedSecret = await aesDecrypt(secret.message, masterKey);
+                    const decryptedSecret = await aesDecrypt(secret.message, messageKey);
                     console.log("decryptedSecret", decryptedSecret);
                     document.getElementById('secret-text').value = decryptedSecret;
                 } else if (secret.secret_type === 'file') {
-                    const originalFilename = await aesDecrypt(secret.original_filename, masterKey);
-                    const blob = await aesDecryptFile(secret.message, masterKey, originalFilename);
+                    const originalFilename = await aesDecrypt(secret.original_filename, messageKey);
+                    const blob = await aesDecryptFile(secret.message, messageKey, originalFilename);
                 }
             });
 
@@ -140,9 +134,10 @@
                 const latitude = data.latitude;
                 const longitude = data.longitude;
 
-                // console.log(country);
-                // console.log(city);
-                // console.log(success[0]);
+                console.log(country);
+                console.log(city);
+                console.log(success[0]);
+
 
                 Livewire.dispatch('createSecretLog', {
                     success: success[0],

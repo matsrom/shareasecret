@@ -11,7 +11,7 @@ class SecretList extends Component
     use WithPagination;
 
     public $sortColumn = 'created_at';
-    public $sortDirection = 'asc';
+    public $sortDirection = 'desc';
 
     protected $listeners = ['secretDeleted' => 'render'];
 

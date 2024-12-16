@@ -25,7 +25,7 @@ class ShowSecret extends Component
     public $modalVisible = false;
 
 
-    protected $listeners = ['decryptText', 'decryptFile', 'createSecretLog'];
+    protected $listeners = ['decryptText', 'createSecretLog'];
 
     public function mount($secret)
     {
@@ -35,20 +35,20 @@ class ShowSecret extends Component
 
         // If the secret has expired, get the location of the user and create a log
         if (($secret->clicks_expiration && $secret->clicks_remaining <= 0) || ($secret->days_expiration && $currentDate->greaterThan($expirationDate))) {
-            $this->dispatch('getLogLocationAndCreateLog', false);
-
-            $ip = request()->ip();
-            $response = Http::withOptions(['verify' => false])->get('https://api.ip2location.io/', [
-                'key' => '78738552C7CE2DF260F21C9EE99E9099',
-                'ip' => $ip
-            ]);
-
-            $country = $response->json()['country_name'];
-            $city = $response->json()['city_name'];
-            $latitude = $response->json()['latitude'];
-            $longitude = $response->json()['longitude'];
-
-            $this->createSecretLog(false, $country, $city, $latitude, $longitude);
+            if($secret->keep_track){
+                $ip = request()->ip();
+                $response = Http::withOptions(['verify' => false])->get('https://api.ip2location.io/', [
+                    'key' => '78738552C7CE2DF260F21C9EE99E9099',
+                    'ip' => $ip
+                ]);
+                
+                $country = $response->json()['country_name'];
+                $city = $response->json()['city_name'];
+                $latitude = $response->json()['latitude'];
+                $longitude = $response->json()['longitude'];
+                
+                $this->createSecretLog(false, $country, $city, $latitude, $longitude);
+            }
 
             return redirect(route('secrets.create'))->with('status', [
                 'message' => 'The secret has expired',
@@ -62,9 +62,16 @@ class ShowSecret extends Component
         $this->manualDeletion = $secret->allow_manual_deletion;
 
         if(!$this->passwordProtected && $secret->secret_type === 'text'){
-            $this->dispatch('decryptSecret', data: $secret, master_key: auth()->user()->master_key);
+            $this->dispatch('decryptSecret', data: $secret);
             $this->updateSecretClicks($secret);
-            $this->dispatch('getLogLocationAndCreateLog', true);
+            if($secret->keep_track){
+                $this->dispatch('getLogLocationAndCreateLog', true);
+            }
+        }else if(!$this->passwordProtected && $secret->secret_type === 'file'){
+            $this->updateSecretClicks($secret);
+            if($secret->keep_track){
+                $this->dispatch('getLogLocationAndCreateLog', true);
+            }
         }else if(!$secret->secret_type === 'text' && !$secret->secret_type === 'file'){
             abort(403, 'Unauthorized');
         }
@@ -72,7 +79,7 @@ class ShowSecret extends Component
 
     public function decryptFile()
     {
-        $this->dispatch('decryptSecret', data: $this->secret, message_key: $this->messageKey, master_key: auth()->user()->master_key);
+        $this->dispatch('decryptSecret', data: $this->secret);
     }
 
     public function showSecret()
@@ -80,18 +87,22 @@ class ShowSecret extends Component
         if (Hash::check($this->password, $this->secret->password_hash)) {
             $this->passwordProtected = false;
             if($this->secret->secret_type === 'text'){
-                $this->dispatch('decryptSecret', data: $this->secret, master_key: auth()->user()->master_key);
+                $this->dispatch('decryptSecret', data: $this->secret);
             } 
             
             if($this->secret->clicks_expiration){
                 $this->updateSecretClicks($this->secret);
             }
-            $this->dispatch('getLogLocationAndCreateLog', true);
+            if($this->secret->keep_track){
+                $this->dispatch('getLogLocationAndCreateLog', true);
+            }
             $this->render();
             
         }
         else{
-            $this->dispatch('getLogLocationAndCreateLog', false);
+            if($this->secret->keep_track){
+                $this->dispatch('getLogLocationAndCreateLog', false);
+            }
             $this->passwordError = "Incorrect password";
         }
         
@@ -127,7 +138,8 @@ class ShowSecret extends Component
         $this->redirect(route('secrets.create'));
     }
 
-    public function createSecretLog($success, $country, $city, $latitude, $longitude){;
+    public function createSecretLog($success, $country, $city, $latitude, $longitude){
+        // dd($this->secret);
         $secretLog = new SecretLog();
         $secretLog->secret_id = $this->secret->id;
         $secretLog->ip_address = request()->ip();

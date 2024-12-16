@@ -33,7 +33,7 @@
                         <td class="px-6 py-2 border-b text-center">
                             {{ $secret->clicks_expiration ? $secret->clicks_remaining : '-' }}
                         </td>
-                        <td class="px-6 py-2 border-b text-center">{{ $secret->created_at->format('d/m/Y') }}
+                        <td class="px-6 py-2 border-b text-center">{{ $secret->created_at->format('d/m/Y H:i') }}
                         </td>
                         <td class="px-6 py-2 border-b flex items-center justify-center">
                             <x-icon-button type="blue-700" icon="content_copy"

@@ -11,7 +11,7 @@ class SecretLogList extends Component
 
     public $secret;
     public $sortField = 'access_date';
-    public $sortDirection = 'asc';
+    public $sortDirection = 'desc';
 
     public function sortBy($field)
     {

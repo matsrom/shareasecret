@@ -3,8 +3,7 @@
         <p class="text-2xl">Go ahead and share this secret!</p>
 
         <div class="flex flex-row gap-2 justify-center items-center mt-8 w-3/4">
-            <x-text-input id="result" class="block w-full md:w-1/2 h-9" type="text" value="{{ $shareLink }}"
-                readonly />
+            <x-text-input id="result" class="block w-full md:w-1/2 h-9" type="text" readonly />
             <button type="button" onclick="copyToClipboard()" title="Copiar al portapapeles">
 
                 <span class="material-symbols-outlined" id="copyIcon">
@@ -48,6 +47,14 @@
     </div>
 
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const url = window.location.origin + '/secret/' + '{{ $secret->url_identifier }}';
+            const urlKey = sessionStorage.getItem('urlKey');
+            const urlWithKey = url + '?key=' + urlKey;
+            console.log(urlWithKey);
+            document.getElementById("result").value = urlWithKey;
+        });
+
         function copyToClipboard() {
             const secretInput = document.getElementById("result");
             const copyIcon = document.getElementById("copyIcon");

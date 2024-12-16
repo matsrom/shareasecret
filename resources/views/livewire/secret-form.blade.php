@@ -22,7 +22,7 @@
 
     {{-- Column 2 --}}
     <div class="md:w-1/3 flex flex-col px-10 md:px-40 gap-4 mt-10 md:mt-0">
-        <h2 class="text-xl font-medium text-gray-900">2- Enter secret</h2>
+        <h2 class="text-xl font-medium text-gray-900">2- Enter Secret</h2>
         @if ($this->secret_type == SecretType::Text)
             {{-- Toggle --}}
             <div class="flex flex-row items-center">
@@ -112,6 +112,9 @@
                             </span>
                         </button>
                     </div>
+                    @error('secret')
+                        <livewire:show-alert :message="$message" />
+                    @enderror
                 </div>
             @endif
         @else
@@ -273,36 +276,42 @@
             $wire.on('encryptSecret', async (event) => {
                 // Get secretdata
                 const data = event.data;
-                const messageKey = window.crypto.getRandomValues(new Uint8Array(16));
-                const encodedMessageKey = btoa(String.fromCharCode(...messageKey));
+                const messageKey = Math.random().toString(36).substring(2, 18);
+                console.log("messageKey", messageKey);
+                const encodedMessageKey = btoa(messageKey);
+                console.log("encodedMessageKey", encodedMessageKey);
 
                 // Get keys for encryption
-                const encryptedMasterKey = event.masterKey;
-                console.log("encryptedMasterKey", encryptedMasterKey);
-                const derivedKey = localStorage.getItem('derivedKey');
-                console.log("derivedKey", derivedKey);
-                const masterKey = await aesDecrypt(encryptedMasterKey, derivedKey);
-                console.log("masterKey", masterKey);
-
-                const encryptedMessageKey = await aesEncrypt(encodedMessageKey, masterKey);
-                console.log("encryptedMessageKey", encryptedMessageKey);
+                if (data.keep_track == 1) {
+                    const encryptedMasterKey = event.masterKey;
+                    console.log("encryptedMasterKey", encryptedMasterKey);
+                    const derivedKey = localStorage.getItem('derivedKey');
+                    console.log("derivedKey", derivedKey);
+                    const masterKey = await aesDecrypt(encryptedMasterKey, derivedKey);
+                    console.log("masterKey", masterKey);
+                    const encryptedMessageKey = await aesEncrypt(encodedMessageKey, masterKey);
+                    console.log("encryptedEncodedMessageKey", encryptedMessageKey);
+                    data.message_key = encryptedMessageKey;
+                } else {
+                    data.message_key = encodedMessageKey;
+                }
 
                 if (data.secret_type === 'text' && data.text_type === 'manual') {
                     const text = document.getElementById("manual_secret").value;
-                    data.message = await aesEncrypt(text, masterKey);
+                    data.message = await aesEncrypt(text, encodedMessageKey);
                 } else if (data.secret_type === 'text' && data.text_type === 'automatic') {
                     const text = document.getElementById("automatic_secret").value;
-                    data.message = await aesEncrypt(text, masterKey);
+                    data.message = await aesEncrypt(text, encodedMessageKey);
                 } else if (data.secret_type === 'file') {
                     const file = document.getElementById("file_secret").files[0];
-                    data.message = await aesEncryptFile(file, masterKey);
+                    data.message = await aesEncryptFile(file, encodedMessageKey);
                     const file_name = file.name;
-                    const original_filename = await aesEncrypt(file_name, masterKey);
+                    const original_filename = await aesEncrypt(file_name, encodedMessageKey);
 
                     data.original_filename = original_filename;
                 }
 
-                data.message_key = encryptedMessageKey;
+                sessionStorage.setItem('urlKey', encodedMessageKey);
 
 
                 data.message_iv = "";
@@ -314,7 +323,7 @@
 
             window.copyToClipboard = function() {
 
-                const secretInput = document.getElementById("result");
+                const secretInput = document.getElementById("automatic_secret");
                 const copyIcon = document.getElementById("copyIcon");
 
                 // Seleccionar y copiar el texto al portapapeles

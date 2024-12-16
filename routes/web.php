@@ -13,7 +13,7 @@ use App\Http\Controllers\ApiProxyController;
 Route::get('/', [SecretController::class, 'create'])->name('secrets.create');
 Route::get('/new/{secret}', [SecretController::class, 'success'])->name('secrets.success');
 Route::get('/secret/{url_identifier}', [SecretController::class, 'show'])->name('secrets.show');
-
+Route::get('/proxy/ip-location', [ApiProxyController::class, 'getIpLocation'])->name('api.getIpLocation');
 
 
 
@@ -24,7 +24,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::get('/dashboard', [ProfileController::class, 'dashboard'])->name('dashboard');
     Route::get('/secret-log/{secret}', [SecretController::class, 'log'])->name('secret.log');
-    Route::get('/proxy/ip-location', [ApiProxyController::class, 'getIpLocation'])->name('api.getIpLocation');
+    
 });
 
 require __DIR__.'/auth.php';
