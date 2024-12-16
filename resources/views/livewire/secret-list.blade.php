@@ -28,7 +28,7 @@
                             </span>
                         </td>
                         <td class="px-6 py-2 border-b text-center">
-                            {{ $secret->days_expiration ? $secret->days_remaining : '-' }}
+                            {{ $secret->days_expiration ? max(0, ceil(now()->diffInDays(\Carbon\Carbon::parse($secret->created_at)->addDays($secret->days_remaining)))) : '-' }}
                         </td>
                         <td class="px-6 py-2 border-b text-center">
                             {{ $secret->clicks_expiration ? $secret->clicks_remaining : '-' }}

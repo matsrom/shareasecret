@@ -32,7 +32,7 @@
 
                     <p class="text-gray-700 flex gap-1">Days left:
                         <span class="text-gray-800 font-bold">
-                            {{ $secret->days_expiration ? $secret->days_remaining : '-' }}</span>
+                            {{ $secret->days_expiration ? max(0, ceil(now()->diffInDays(\Carbon\Carbon::parse($secret->created_at)->addDays($secret->days_remaining)))) : '-' }}</span>
 
                     </p>
 
