@@ -2,10 +2,10 @@
     use App\Enums\SecretType;
 @endphp
 
-<form action="" class="flex flex-col md:flex-row mt-10" wire:submit.prevent='createSecret'>
+<form action="" class="flex flex-col lg:flex-row lg:justify-between mt-10" wire:submit.prevent='createSecret'>
 
     {{-- Column 1 --}}
-    <div class="md:w-1/3 flex flex-col px-10 md:px-40 gap-4">
+    <div class="lg:w-1/3 flex flex-col px-10  gap-4 lg:pl-480">
         <h2 class="text-xl font-medium text-gray-900">1- Select Type</h2>
         <div><x-primary-button wire:click.prevent="selectType('text')"
                 @class([
@@ -21,7 +21,7 @@
     </div>
 
     {{-- Column 2 --}}
-    <div class="md:w-1/3 flex flex-col px-10 md:px-40 gap-4 mt-10 md:mt-0">
+    <div class="lg:w-1/3 flex flex-col px-10  gap-4 mt-10 lg:mt-0 max-w-lg">
         <h2 class="text-xl font-medium text-gray-900">2- Enter Secret</h2>
         @if ($this->secret_type == SecretType::Text)
             {{-- Toggle --}}
@@ -57,7 +57,7 @@
                 {{-- Manual text --}}
                 <div>
                     <x-input-label for="manual_secret" :value="__('Write the text to share')" />
-                    <textarea id="manual_secret" class="border-gray-300 focus:border-blue-700  rounded-md shadow-sm w-full h-48"
+                    <textarea id="manual_secret" class="border-gray-300 focus:border-blue-700  rounded-lg shadow-sm w-full h-48"
                         wire:model="secret"></textarea>
                     @error('secret')
                         <livewire:show-alert :message="$message" />
@@ -99,9 +99,9 @@
 
                 {{-- Result --}}
                 <div>
-                    <x-input-label class="mt-2 md:mt-5" :value="__('Result')" for="automatic_secret" />
+                    <x-input-label class="mt-2 lg:mt-5" :value="__('Result')" for="automatic_secret" />
                     <div class="flex items-center">
-                        <textarea id="automatic_secret" class="border-gray-300 focus:border-blue-700  rounded-md shadow-sm w-full h-30"
+                        <textarea id="automatic_secret" class="border-gray-300 focus:border-blue-700  rounded-lg shadow-sm w-full h-30"
                             wire:model="secret" readonly></textarea>
 
                         <button class="pl-2 text-blue-700 hover:text-gray-700 flex" type="button"
@@ -128,7 +128,7 @@
     </div>
 
     {{-- Column 3 --}}
-    <div class="md:w-1/3 flex flex-col px-10 md:px-40 gap-4 my-10 md:my-0">
+    <div class="lg:w-1/3 flex flex-col px-10  gap-4 my-10 lg:my-0 max-w-lg">
         <h2 class="text-xl font-medium text-gray-900">3- Sharing Settings</h2>
         <div>
             <div class="flex flex-col">
@@ -216,7 +216,7 @@
                     Before the secret is displayed, a password will be requested.
                 </div>
             </div>
-            <x-text-input id="password" class="block mt-1 w-full md:w-60  h-9" type="text" wire:model="password"
+            <x-text-input id="password" class="block mt-1 w-full lg:w-60  h-9" type="text" wire:model="password"
                 :value="old('password')" />
             @error('password')
                 <livewire:show-alert :message="$message" />
@@ -259,7 +259,7 @@
                         A name for the secret that will be displayed in the dashboard.
                     </div>
                 </div>
-                <x-text-input id="alias" class="block w-full md:w-60 h-9 mt-2" type="text" wire:model="alias"
+                <x-text-input id="alias" class="block w-full lg:w-60 h-9 mt-2" type="text" wire:model="alias"
                     :value="old('alias')" disabled="{{ !$keepTrack }}" />
 
             </div>
@@ -267,7 +267,7 @@
                 <livewire:show-alert :message="$message" />
             @enderror
         </div>
-        <x-primary-button class="justify-center mt-2 w-full	md:w-60">
+        <x-primary-button class="justify-center mt-2 w-full	lg:w-60">
             Share Secret
         </x-primary-button>
     </div>

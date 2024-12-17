@@ -27,4 +27,11 @@ Route::middleware('auth')->group(function () {
     
 });
 
+Route::fallback(function() {
+    return redirect()->route('dashboard')->with('status', [
+        'message' => 'Error 404: site not found',
+        'class' => 'toast-danger'
+    ]);
+});
+
 require __DIR__.'/auth.php';
