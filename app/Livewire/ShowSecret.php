@@ -84,7 +84,9 @@ class ShowSecret extends Component
 
     public function showSecret()
     {
-        if (Hash::check($this->password, $this->secret->password_hash)) {
+        $secret = Secret::find($this->secret)->first();
+
+        if (Hash::check($this->password, $this->secret->password_hash) && ($secret->clicks_expiration && $secret->clicks_remaining > 0)) {
             $this->passwordProtected = false;
             if($this->secret->secret_type === 'text'){
                 $this->dispatch('decryptSecret', data: $this->secret);
@@ -98,6 +100,11 @@ class ShowSecret extends Component
             }
             $this->render();
             
+        }else if($secret->clicks_remaining <= 0){
+            return redirect(route('secrets.create'))->with('status', [
+                'message' => 'The secret has expired',
+                'class' => 'toast-danger',
+            ]);
         }
         else{
             if($this->secret->keep_track){
