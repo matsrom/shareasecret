@@ -14,7 +14,7 @@
         @if ($this->secret->secret_type === 'text')
             <div class="flex flex-col items-center justify-center mt-32 md:mt-48 px-4">
                 <p class="text-2xl font-bold mb-2">Shared secret:</p>
-                <textarea id="secret-text" class="border-gray-300 focus:border-blue-700  rounded-lg shadow-sm w-full md:w-1/2 h-36"
+                <textarea id="secret-text" class="border-gray-300 focus:border-blue-700  rounded-lg shadow-sm w-full md:w-1/3 h-36"
                     readonly>{{ $this->decryptedMessage }}</textarea>
             </div>
         @elseif ($this->secret->secret_type === 'file')
