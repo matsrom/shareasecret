@@ -84,7 +84,7 @@ class ShowSecret extends Component
 
     public function showSecret()
     {
-        $secret = Secret::find($this->secret)->first();
+        $secret = Secret::find($this->secret['id']);
 
         if (Hash::check($this->password, $this->secret->password_hash) && ($secret->clicks_expiration && $secret->clicks_remaining > 0)) {
             $this->passwordProtected = false;
