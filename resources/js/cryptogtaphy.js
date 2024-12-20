@@ -205,7 +205,12 @@ function getIv(password, data) {
 }
 
 function base64Encode(u8) {
-    return btoa(String.fromCharCode.apply(null, u8));
+    let binary = "";
+    const len = u8.length;
+    for (let i = 0; i < len; i++) {
+        binary += String.fromCharCode(u8[i]);
+    }
+    return btoa(binary);
 }
 
 function base64Decode(str) {
