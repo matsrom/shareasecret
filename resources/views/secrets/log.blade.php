@@ -43,7 +43,7 @@
                     </p>
 
                     <p class="text-gray-700">Manual deletion : <span
-                            class="text-gray-800 font-bold">{{ $secret->manual_deletion ? 'Yes' : 'No' }}</span></p>
+                            class="text-gray-800 font-bold">{{ $secret->allow_manual_deletion ? 'Yes' : 'No' }}</span></p>
 
                     <p class="text-gray-700">Password protection : <span
                             class="text-gray-800 font-bold">{{ $secret->is_password_protected ? 'Yes' : 'No' }}</span>
